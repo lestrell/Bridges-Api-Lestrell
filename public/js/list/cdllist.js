@@ -3,15 +3,18 @@
 Circular Doubly Linked List visualization for Bridges
 
 */
-d3.cdllist = function(d3, canvasID, w, h, data) {
+d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     var visID = canvasID.substr(4);
     var finalTranslate = [50, -5];
     var finalScale = 0.36;
+    // var svgGroup;
 
-    var transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID);
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-      finalTranslate = transformObject.translate;
-      finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
 
     // var spacing = 5;        // spacing between elements
@@ -53,8 +56,6 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         .attr("id",function(d,i){
           return "svg"+visID+"g"+i;
         })
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             //size = parseFloat(d.size || defaultSize);
             size = defaultSize;
@@ -138,62 +139,62 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 
-      nodes
-          .append("line")
-          .attr("class","last-vertical-line")
-          .attr("id", function(d,i){
-              return "svg"+visID+"pointer-arrow-"+i;
-          })
-          .attr("y1", function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              // return 198;
-              return 160;
-            }else{
-              return 30;
-            }
-          })
-          .attr("y2", function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              return defaultSize - 70;
-            }else{
-              return 30;
-            }
-          })
-          .attr("x1", function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              return 145 + 10;
-            }else{
-              return 145;
-            }
-          })
-          .attr("x2", function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              return 145 + 10;
-            }else{
-              return 225;
-            }
-          })
-          .attr("stroke",function(d,i){
-              if(d.linkone) return BridgesVisualizer.getColor(d.linkone.color);
-              else "black";
-          })
-          .attr("stroke-width",5)
-          .attr("marker-end",function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              return "url('#Circle')";
-            }else{
-              return "url('#Triangle')";
-            }
+    nodes
+        .append("line")
+        .attr("class","last-vertical-line")
+        .attr("id", function(d,i){
+            return "svg"+visID+"pointer-arrow-"+i;
+        })
+        .attr("y1", function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            // return 198;
+            return 160;
+          }else{
+            return 30;
+          }
+        })
+        .attr("y2", function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            return defaultSize - 70;
+          }else{
+            return 30;
+          }
+        })
+        .attr("x1", function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            return 145 + 10;
+          }else{
+            return 145;
+          }
+        })
+        .attr("x2", function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            return 145 + 10;
+          }else{
+            return 225;
+          }
+        })
+        .attr("stroke",function(d,i){
+            if(d.linkone) return BridgesVisualizer.getColor(d.linkone.color);
+            else "black";
+        })
+        .attr("stroke-width",5)
+        .attr("marker-end",function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            return "url('#Circle')";
+          }else{
+            return "url('#Triangle')";
+          }
 
-          })
-          .attr("marker-start",function(d,i){
-            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-              // return "url('#Triangle')";
-            }else{
-              return "url('#Circle')";
-            }
+        })
+        .attr("marker-start",function(d,i){
+          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+            // return "url('#Triangle')";
+          }else{
+            return "url('#Circle')";
+          }
 
-          });
+        });
 
     nodes
         .append("line")
@@ -204,7 +205,8 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         .attr("y1", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
             // return 198;
-            return 160 - 30;
+            // return 160 - 30;
+            return 130;
           }else{
             return 70;
           }
@@ -218,14 +220,14 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         })
         .attr("x1", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return 145  - 10;
+            return 135;
           }else{
             return 152;
           }
         })
         .attr("x2", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return 145  - 10;
+            return 135;
           }else{
             return 232;
           }
@@ -254,118 +256,118 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         });
 
 
-    var data_length = Object.keys(data).length;
-    for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
-        d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
-            .append("line")
-            .attr("class","last-horizontal-line")
-            .attr("stroke",function(d,i){
-                return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
-            })
-            .attr("stroke-width",5)
-            .attr("y1", function(d,i){
-              // console.log(  );
-              return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
-            })
-            .attr("y2", function(d,i){
-              return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
-            })
-            .attr("x1", function(d,i){
-              // d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
-              return ( (elementsPerRow-1) * (-1*(spacing + defaultSize) ) ) + 15 + 10;
-              // return 40;
-            })
-            .attr("x2", function(d,i){
-              return d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
-              // return 80;
-            })
-            .attr("display",function(d,i){
-                if(Object.keys(data).length-1 == qq){
-                    return "none";
-                }
-            });
+      var data_length = Object.keys(data).length;
+      for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
+          d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
+              .append("line")
+              .attr("class","last-horizontal-line")
+              .attr("stroke",function(d,i){
+                  return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+              })
+              .attr("stroke-width",5)
+              .attr("y1", function(d,i){
+                // console.log(  );
+                return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+              })
+              .attr("y2", function(d,i){
+                return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+              })
+              .attr("x1", function(d,i){
+                // d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
+                return ( (elementsPerRow-1) * (-1*(spacing + defaultSize) ) ) + 15 + 10;
+                // return 40;
+              })
+              .attr("x2", function(d,i){
+                return d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
+                // return 80;
+              })
+              .attr("display",function(d,i){
+                  if(Object.keys(data).length-1 == qq){
+                      return "none";
+                  }
+              });
 
 
-        d3.select(d3.select("#svg"+visID+"pointer-arrow-two"+qq)[0][0].parentNode)
-            .append("line")
-            .attr("class","last-horizontal-line-two")
-            .attr("stroke",function(d,i){
-                return d3.select(this.parentNode).select(".last-vertical-line-two").attr("stroke") || "black";
-            })
-            .attr("stroke-width",5)
-            .attr("y1", function(d,i){
-              // console.log(  );
-              return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
-            })
-            .attr("y2", function(d,i){
-              return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
-            })
-            .attr("x1", function(d,i){
-              // d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
-              return ( (elementsPerRow-1) * (-1*(defaultSize + spacing)) ) + 15 - 10;
-              // return 40;
-            })
-            .attr("x2", function(d,i){
-              return d3.select(this.parentNode).select(".last-vertical-line-two").attr("x1");
-              // return 80;
-            })
-            .attr("display",function(d,i){
-                if(Object.keys(data).length-1 == qq){
-                    return "none";
-                }
-            });
-
-    }
-
-    for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
-      d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
-          .append("line")
-          .attr("stroke",function(d,i){
-              return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
-          })
-          .attr("stroke-width",5)
-          .attr("y1", function(d,i){
-              return parseInt(d3.select(this.parentNode).select(".last-horizontal-line").attr("y1")) - 3;
-          })
-          .attr("y2", function(d,i){
-              return parseInt( d3.select(this.parentNode).select(".last-horizontal-line").attr("y1") ) + 100 - 25;
-          })
-          .attr("x1", function(d,i){
-            return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
-          })
-          .attr("x2", function(d,i){
-            return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
-          })
-          .attr("marker-end","url('#Triangle')")
-          .attr("display",function(d,i){
-            if(Object.keys(data).length-1 == qq){
-                return "none";
-            }
-          });
       d3.select(d3.select("#svg"+visID+"pointer-arrow-two"+qq)[0][0].parentNode)
           .append("line")
+          .attr("class","last-horizontal-line-two")
           .attr("stroke",function(d,i){
               return d3.select(this.parentNode).select(".last-vertical-line-two").attr("stroke") || "black";
           })
           .attr("stroke-width",5)
           .attr("y1", function(d,i){
-              return parseInt(d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1")) - 3;
+            // console.log(  );
+            return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
           })
           .attr("y2", function(d,i){
-              return parseInt( d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1") ) + 100 + 55;
+            return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
           })
           .attr("x1", function(d,i){
-              return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+            // d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
+            return ( (elementsPerRow-1) * (-1*(defaultSize + spacing)) ) + 15 - 10;
+            // return 40;
           })
           .attr("x2", function(d,i){
-            return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+            return d3.select(this.parentNode).select(".last-vertical-line-two").attr("x1");
+            // return 80;
           })
-          .attr("marker-end","url('#Circle')")
           .attr("display",function(d,i){
-            if(Object.keys(data).length-1 == qq){
-                return "none";
-            }
+              if(Object.keys(data).length-1 == qq){
+                  return "none";
+              }
           });
+
+    }
+
+    for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
+        d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
+            .append("line")
+            .attr("stroke",function(d,i){
+                return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+            })
+            .attr("stroke-width",5)
+            .attr("y1", function(d,i){
+                return parseInt(d3.select(this.parentNode).select(".last-horizontal-line").attr("y1")) - 3;
+            })
+            .attr("y2", function(d,i){
+                return parseInt( d3.select(this.parentNode).select(".last-horizontal-line").attr("y1") ) + 100 - 25;
+            })
+            .attr("x1", function(d,i){
+              return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+            })
+            .attr("x2", function(d,i){
+              return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+            })
+            .attr("marker-end","url('#Triangle')")
+            .attr("display",function(d,i){
+              if(Object.keys(data).length-1 == qq){
+                  return "none";
+              }
+            });
+        d3.select(d3.select("#svg"+visID+"pointer-arrow-two"+qq)[0][0].parentNode)
+            .append("line")
+            .attr("stroke",function(d,i){
+                return d3.select(this.parentNode).select(".last-vertical-line-two").attr("stroke") || "black";
+            })
+            .attr("stroke-width",5)
+            .attr("y1", function(d,i){
+                return parseInt(d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1")) - 3;
+            })
+            .attr("y2", function(d,i){
+                return parseInt( d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1") ) + 100 + 55;
+            })
+            .attr("x1", function(d,i){
+                return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+            })
+            .attr("x2", function(d,i){
+              return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+            })
+            .attr("marker-end","url('#Circle')")
+            .attr("display",function(d,i){
+              if(Object.keys(data).length-1 == qq){
+                  return "none";
+              }
+            });
     }
 
 
@@ -376,9 +378,6 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
     var last_g = svgGroup.select("#svg"+visID+"g"+parseInt(Object.keys(data).length-1));
 
     last_g.select(".last-vertical-line")
-        // .attr("stroke",function(d,i){
-        //     return d.linktargetcolor || "black";
-        // })
         .attr("marker-start","")
         .attr("marker-end",function(){
           return "url('#Circle')";
@@ -389,9 +388,6 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         .attr("y2",defaultSize / 2);
 
     last_g.select(".last-vertical-line-two")
-        // .attr("stroke",function(d,i){
-        //     return d.linktargetcolor || "black";
-        // })
         .attr("marker-start","")
         .attr("marker-end","url('#Circle')")
         .attr("x1",155)
@@ -444,9 +440,9 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
               number_of_rows_left = parseInt(Object.keys(data).length / elementsPerRow);
               if( (Object.keys(data).length) % elementsPerRow == 0){
                 number_of_rows_left = parseInt(Object.keys(data).length / elementsPerRow) - 1;
-                return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 50 + 20;
+                return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 70;
               }
-              return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 50 + 20;
+              return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 70;
         })
         .attr("y2", function(d,i){
               return parseFloat(d3.select(this.parentNode).select(".last-g-horizontal-line").attr("y1"));
@@ -489,11 +485,11 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
         .attr("x2", function(d,i){
               var number_of_rows_left = (-1*( parseInt(Object.keys(data).length) % elementsPerRow)) + elementsPerRow;
               if( number_of_rows_left ==  elementsPerRow-1){
-                  return (-1* (defaultSize + spacing) ) + 134 - 30;
+                  return (-1* (defaultSize + spacing) ) + 104;
               }
 
               if( (Object.keys(data).length) % elementsPerRow == 0){
-                    return ((elementsPerRow-1) * (-1*(defaultSize + spacing)) ) - 80 - 30;
+                    return ((elementsPerRow-1) * (-1*(defaultSize + spacing)) ) + 110;
               }
 
               number_of_rows_left = parseInt(Object.keys(data).length) % elementsPerRow;
@@ -525,9 +521,9 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
               number_of_rows_left = parseInt(Object.keys(data).length / elementsPerRow);
               if( (Object.keys(data).length) % elementsPerRow == 0){
                 number_of_rows_left = parseInt(Object.keys(data).length / elementsPerRow) - 1;
-                return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 50 - 20;
+                return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 30;
               }
-              return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 50 - 20;
+              return (-1 * ((number_of_rows_left * (defaultSize + spacing) )) ) + 30;
         })
         .attr("y2", function(d,i){
               // number_of_rows_left = ( parseInt(Object.keys(data).length) / elementsPerRow) + elementsPerRow;
@@ -545,7 +541,7 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
             return parseInt(d3.select(this.parentNode).select(".last-g-vertical-line-two").attr("x2"));
         })
         .attr("x1", function(d,i){
-            return parseInt(d3.select(this.parentNode).select(".last-g-vertical-line-two").attr("x2")) + 60 + 30;
+            return parseInt(d3.select(this.parentNode).select(".last-g-vertical-line-two").attr("x2")) + 90;
         })
         .attr("y1", function(d,i){
               return parseInt(d3.select(this.parentNode).select(".last-g-vertical-line-two").attr("y1"));
@@ -564,44 +560,33 @@ d3.cdllist = function(d3, canvasID, w, h, data) {
 
 
     // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
-
-    function mouseover() {
-        // scale text size based on zoom factor
-        var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-        d3.select(this).selectAll(".value-textview").transition()
-              .duration(250)
-              .style("display","block")
-              .style("font-size", function(d,i) {
-                if(i > elementsPerRow){
-                  d3.select(this.parentNode).moveToFront();
-                }
-                return hoverSize(zoom.scale());
-              });
-    }
-
-    function mouseout() {
-        d3.select(this).selectAll(".value-textview").transition()
-            .duration(750)
-            .style("display",function(d,i){
-              if(i > elementsPerRow){
-                d3.select(this.parentNode).moveToBack();
-              }
-              return "none";
-            })
-            .style("font-size", 14);
-    }
+    // function mouseover() {
+    //     // scale text size based on zoom factor
+    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //           .duration(250)
+    //           .style("display","block")
+    //           .style("font-size", function(d,i) {
+    //             if(i > elementsPerRow){
+    //               d3.select(this.parentNode).moveToFront();
+    //             }
+    //             return hoverSize(zoom.scale());
+    //           });
+    // }
+    //
+    // function mouseout() {
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //         .duration(750)
+    //         .style("display",function(d,i){
+    //           if(i > elementsPerRow){
+    //             d3.select(this.parentNode).moveToBack();
+    //           }
+    //           return "none";
+    //         })
+    //         .style("font-size", 14);
+    // }
 
     //// zoom function
     function zoomHandler() {

@@ -5,7 +5,7 @@ Linked List visualization for Bridges
 */
 
 
-d3.sllist = function(d3, canvasID, w, h, data) {
+d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     // var spacing = 5;        // spacing between elements
     var visID = canvasID.substr(4);
@@ -18,10 +18,12 @@ d3.sllist = function(d3, canvasID, w, h, data) {
     var defaultSizeW = 160;  // default size of each element box
     var elementsPerRow = 4 * parseInt((w - (spacing + defaultSize)) / (spacing + defaultSize));
 
-    var transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID);
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-        finalTranslate = transformObject.translate;
-        finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
 
 
@@ -57,8 +59,8 @@ d3.sllist = function(d3, canvasID, w, h, data) {
         .attr("id",function(d,i){
           return "svg"+visID+"g"+i;
         })
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
+        // .on("mouseover", mouseover)
+        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             //size = parseFloat(d.size || defaultSize);
             size = defaultSize
@@ -304,47 +306,36 @@ d3.sllist = function(d3, canvasID, w, h, data) {
             .style("display","block");
 
 
-    // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
 
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
-    function mouseover() {
-        // scale text size based on zoom factor
-        var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-        d3.select(this).selectAll(".value-textview").transition()
-              .duration(250)
-              .style("display","block")
-              .style("font-size", function(d,i) {
-                if(i > elementsPerRow){
-                  d3.select(this.parentNode).moveToFront();
-                }
-                return hoverSize(zoom.scale());
-              });
-        // BridgesVisualizer.textMouseover(this);
-    }
-
-    function mouseout() {
-        d3.select(this).selectAll(".value-textview").transition()
-            .duration(750)
-            .style("display",function(d,i){
-              if(i > elementsPerRow){
-                d3.select(this.parentNode).moveToBack();
-              }
-              return "none";
-            })
-            .style("font-size", 14);
-        // BridgesVisualizer.textMouseout(this);
-    }
+    // function mouseover() {
+    //     // scale text size based on zoom factor
+    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //           .duration(250)
+    //           .style("display","block")
+    //           .style("font-size", function(d,i) {
+    //             if(i > elementsPerRow){
+    //               d3.select(this.parentNode).moveToFront();
+    //             }
+    //             return hoverSize(zoom.scale());
+    //           });
+    //     // BridgesVisualizer.textMouseover(this);
+    // }
+    //
+    // function mouseout() {
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //         .duration(750)
+    //         .style("display",function(d,i){
+    //           if(i > elementsPerRow){
+    //             d3.select(this.parentNode).moveToBack();
+    //           }
+    //           return "none";
+    //         })
+    //         .style("font-size", 14);
+    //     // BridgesVisualizer.textMouseout(this);
+    // }
 
     //// zoom function
     function zoomHandler() {

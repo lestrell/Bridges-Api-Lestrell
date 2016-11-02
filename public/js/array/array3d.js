@@ -3,7 +3,7 @@
 Array visualization for Bridges
 
 */
-d3.array3d = function(d3, canvasID, w, h, data, dimensions) {
+d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
 
     var dimOne = dimensions[0],
         dimTwo = dimensions[1],
@@ -17,13 +17,16 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions) {
         visID = canvasID.substr(4),
         finalTranslate = [50, -5],
         finalScale = 0.36,
-        transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID),
+        transformObject = BridgesVisualizer.getTransformObject(visID),
         elementsPerRow = dimOne,
         elementsPerColumn = (dimOne * dimTwo) / dimOne;
 
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-        finalTranslate = transformObject.translate;
-        finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
 
 
@@ -126,19 +129,7 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions) {
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 
-    // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
-
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
     var my_translateX = parseFloat(d3.transform(d3.select("#g"+(elementsPerRow-1)).attr("transform")).translate[0]) + spacingBetweenGrid;
     d3.select("#g0").attr("class","first-2d");
@@ -187,7 +178,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions) {
             .append("text")
             .text(function(){
                 return "(Slice: "+ i +")";
-                // return "(0,0,"+ i +")";
             })
             .attr("x", (parseFloat(d3.transform(d3.select(this).attr("transform")).translate[0])+half2d) - valueToCenterGridTitle)
             .style("font-size","100px")

@@ -3,7 +3,7 @@
 Array visualization for Bridges
 
 */
-d3.array = function(d3, canvasID, w, h, data) {
+d3.array = function(d3, canvasID, w, h, data, transformCloud) {
 
     var spacing = 5;        // spacing between elements
     var marginLeft = 20;
@@ -13,12 +13,17 @@ d3.array = function(d3, canvasID, w, h, data) {
     var finalTranslate = [20, 200];
     var finalScale = 1;
 
-
-    var transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID);
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-      finalTranslate = transformObject.translate;
-      finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
+
+    console.log("***********************************Loaded I****************************************");
+    console.log(transformObject);
+    console.log("***********************************Loaded I****************************************");
 
     // error when zooming directly after pan on OSX
     // https://github.com/mbostock/d3/issues/2205
@@ -50,8 +55,8 @@ d3.array = function(d3, canvasID, w, h, data) {
     var nodes = svgGroup.selectAll("nodes")
         .data(data)
         .enter().append("g")
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
+        // .on("mouseover", mouseover)
+        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             //size = parseFloat(d.size || defaultSize);
             size = defaultSize;
@@ -113,37 +118,25 @@ d3.array = function(d3, canvasID, w, h, data) {
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 
-    // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
-
-    function mouseover() {
-        // scale text size based on zoom factor
-        var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-        d3.select(this).selectAll(".value-textview").transition()
-              .duration(250)
-              .style("display","block")
-              .style("font-size", function(d) {
-                return hoverSize(zoom.scale());
-              });
-    }
-
-    function mouseout() {
-        d3.select(this).selectAll(".value-textview").transition()
-            .duration(750)
-            .style("display","none")
-            .style("font-size", 14);
-    }
+    // function mouseover() {
+    //     // scale text size based on zoom factor
+    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //           .duration(250)
+    //           .style("display","block")
+    //           .style("font-size", function(d) {
+    //             return hoverSize(zoom.scale());
+    //           });
+    // }
+    //
+    // function mouseout() {
+    //     d3.select(this).selectAll(".value-textview").transition()
+    //         .duration(750)
+    //         .style("display","none")
+    //         .style("font-size", 14);
+    // }
 
     //// zoom function
     function zoomHandler() {

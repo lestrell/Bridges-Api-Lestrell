@@ -3,7 +3,7 @@
 Array visualization for Bridges
 
 */
-d3.array2d = function(d3, canvasID, w, h, data, dimensions) {
+d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
 
     var elementsPerRow = dimensions[0];
     var spacing = 40;        // spacing between elements
@@ -18,10 +18,12 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions) {
     var finalScale = 0.36;
     if(w > 1200){ finalScale = 0.56;}
 
-    var transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID);
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-      finalTranslate = transformObject.translate;
-      finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
 
     // error when zooming directly after pan on OSX
@@ -118,19 +120,7 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions) {
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 
-    // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
-
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
     // function mouseover() {
     //     // scale text size based on zoom factor

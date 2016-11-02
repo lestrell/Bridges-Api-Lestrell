@@ -417,6 +417,9 @@ exports.updateTransforms = function(req, res) {
           "assignmentNumber": req.params.assignmentNumber,
           "email": req.user.email
         })
+        .sort({
+            subAssignment: 1  // TODO: only sorts based on strings since we don't store numbers as integers...
+        })
         .exec(function(err, assign) {
             if (err) return next(err);
 

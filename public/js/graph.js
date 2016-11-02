@@ -1,6 +1,6 @@
 //based loosely on bostock's example and
 //http://bl.ocks.org/d3noob/5141278
-d3.graph = function(d3, id, W, H, data) {
+d3.graph = function(d3, id, W, H, data, transformCloud) {
 
     d3.select("#reset").on("click", reset);
 
@@ -33,12 +33,27 @@ d3.graph = function(d3, id, W, H, data) {
   var drag = force.drag();
   drag.on("dragstart",dragstart);
 
+  // var visID = canvasID.substr(4);
+  // var finalTranslate = [519, 211];
+  // var finalScale = 1;
+  // // var svgGroup;
+  //
+  // var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
+  // if(transformObject){
+  //      finalTranslate = [transformObject.translatex,transformObject.translatey];
+  //      finalScale = transformObject.scale;
+  // }else{
+  //   console.log("Loaded from default!");
+  // }
+
+  
   // error when zooming directly after pan on OSX
   // https://github.com/mbostock/d3/issues/2205
    var zoom = d3.behavior.zoom()
           .scaleExtent([0.1,5])
-          .on("zoom", zoomHandler);
-          zoom.scale(1);
+          .on("zoom", zoomHandler)
+          .scale(finalScale)
+          .translate(finalTranslate);
       allZoom.push(zoom);
 
   var defaultColors = d3.scale.category20(); //10 or 20
@@ -130,21 +145,9 @@ d3.graph = function(d3, id, W, H, data) {
           return d.name;
       });
 
-  // Function to add line breaks to node labels/names
-  var insertLineBreaks = function(d) {
-  	var el = d3.select(this);
-  	var words = d3.select(this).text().split('\n');
-  	el.text('');
-
-  	for (var i = 0; i < words.length; i++) {
-  	    var tspan = el.append('tspan').text(words[i]);
-  	    if (i > 0)
-  		tspan.attr('dy','15');
-  	}
-  };
 
   // Add line breaks to node labels
-  svgGroup.selectAll('text').each(insertLineBreaks);
+  svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
   force.on("tick", function() {
       node
@@ -164,6 +167,9 @@ d3.graph = function(d3, id, W, H, data) {
                   d.target.x + "," +
                   d.target.y;
           });
+  }).on('end', function() {
+        // layout is done
+        // callback();
   });
 
   // function mouseover() {

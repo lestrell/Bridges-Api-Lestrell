@@ -134,8 +134,8 @@ d3.bst = function (d3, canvasID, w, h) {
         // Update the nodes…
         var node = svgGroup.selectAll("g.node")
             .data(nodes, function(d) { return d.id || (d.id = ++i); })
-            .on("mouseover", mouseover)
-            .on("mouseout", mouseout);
+            .on("mouseover", BridgesVisualizer.textMouseover)
+            .on("mouseout", BridgesVisualizer.textMouseout);
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("svg:g")
@@ -148,8 +148,15 @@ d3.bst = function (d3, canvasID, w, h) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
             })
             .on("click", function(d) { toggle(d); update(d); })
-            .on("mouseover", mouseover)
-            .on("mouseout", mouseout);
+            .on("mouseover", BridgesVisualizer.textMouseover)
+            .on("mouseout", BridgesVisualizer.textMouseout)
+            .style("display",function(d){
+                if(!d.color && !d.size){
+                    return "none";
+                }
+            });
+            // .on("mouseover", mouseover)
+            // .on("mouseout", mouseout);
 
         nodeEnter.append('path')
             .attr("d", d3.svg.symbol()
@@ -157,7 +164,7 @@ d3.bst = function (d3, canvasID, w, h) {
                 .size(function(d) { return scaleSize(d.size) || 1; })
             )
             .style("fill", function(d) {
-                return BridgesVisualizer.getColor(d.color) || "#fff";
+                return BridgesVisualizer.getColor(d.color) || "#000";
             })
             .style("opacity", function(d) {
                 return d.role ? 0 : ( d.opacity || 1 );
@@ -250,11 +257,11 @@ d3.bst = function (d3, canvasID, w, h) {
         });
 
         // Add line breaks to node labels
-        svgGroup.selectAll('text.nodeLabel').each(insertLineBreaks);
+        svgGroup.selectAll('text.nodeLabel').each(BridgesVisualizer.insertLinebreaks);
     }
 
 // Function to add line breaks to node labels/names
-function insertLineBreaks (d){
+function BridgesVisualizer.insertLinebreaks (d){
 	var el = d3.select(this);
     var words = d3.select(this).text().split('\n');
 
@@ -270,11 +277,11 @@ function insertLineBreaks (d){
     // }
 }
 
-//    // zoom function
-function zoomHandler() {
-    //console.log("zoom");
-    svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
+// //    // zoom function
+// function zoomHandler() {
+//     //console.log("zoom");
+//     svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+// }
 
 function dragstarted() {
     //console.log("dragstart");

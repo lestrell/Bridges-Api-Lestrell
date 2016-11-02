@@ -3,7 +3,7 @@
 Doubly Linked List visualization for Bridges
 
 */
-d3.dllist = function(d3, canvasID, w, h, data) {
+d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     var visID = canvasID.substr(4);
     var finalTranslate = [50, -5];
@@ -15,10 +15,12 @@ d3.dllist = function(d3, canvasID, w, h, data) {
     var defaultSizeW = 160;  // default size of each element box
     var elementsPerRow = 4 * parseInt((w - (spacing + defaultSize)) / (spacing + defaultSize));
 
-    var transformObject = BridgesVisualizer.getTransformObjectFromCookie(visID);
+    var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
-        finalTranslate = transformObject.translate;
-        finalScale = transformObject.scale;
+         finalTranslate = [transformObject.translatex,transformObject.translatey];
+         finalScale = transformObject.scale;
+    }else{
+      console.log("Loaded from default!");
     }
 
     // var myScale = 0.36;
@@ -56,8 +58,8 @@ d3.dllist = function(d3, canvasID, w, h, data) {
         .attr("id",function(d,i){
           return "svg"+visID+"g"+i;
         })
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
+        // .on("mouseover", mouseover)
+        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             //size = parseFloat(d.size || defaultSize);
             size = defaultSize;
@@ -464,19 +466,7 @@ d3.dllist = function(d3, canvasID, w, h, data) {
         .attr("height",40)
         .style("display","block");
 
-    // bind linebreaks to text elements
-    var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
-
-        for (var j = 0; j < words.length; j++) {
-            var tspan = el.append('tspan').text(words[j]);
-            if (j > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-    svgGroup.selectAll('text').each(insertLinebreaks);
+    svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
     function mouseover() {
         // scale text size based on zoom factor

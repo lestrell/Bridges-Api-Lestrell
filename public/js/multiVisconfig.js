@@ -16,6 +16,19 @@ BridgesVisualizer.getColor = function(color) {
   return color;
 };
 
+// bind linebreaks to text elements
+BridgesVisualizer.insertLinebreaks = function (d, i) {
+        var el = d3.select(this);
+        var words = d3.select(this).text().split('\n');
+        el.text('');
+
+        for (var j = 0; j < words.length; j++) {
+            var tspan = el.append('tspan').text(words[j]);
+            if (j > 0)
+                tspan.attr('x', 0).attr('dy', '15');
+        }
+    };
+
 // BridgesVisualizer.textMouseover = function(el, visType) {
 //   var textElm = d3.select(el).select("text");
 //   textElm.transition().delay(50).duration(750).style("opacity",1.0);
@@ -37,41 +50,76 @@ BridgesVisualizer.getColor = function(color) {
 // };
 
 // function to return the transformObject saved positions
-BridgesVisualizer.getTransformObjectFromCookie = function(visID) {
-        var name = "vis"+visID+"-"+location.pathname + "=";
-        // var name = cname + "=";
-        var ca = document.cookie.split(';');
-        console.log(ca);
-        for(var i=0; i<ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                // return c.substring(name.length, c.length);
-                var cookieStringValue = c.substring(name.length, c.length);
-                var cookieJSONValue;
-                try{
-                    cookieJSONValue = JSON.parse(cookieStringValue);
-                }catch(err){
-                    console.log(err, cookieStringValue);
-                }
-
-                if(cookieJSONValue){
-                  if(cookieJSONValue.hasOwnProperty("translatex") &&
-                     cookieJSONValue.hasOwnProperty("translatey") &&
-                     cookieJSONValue.hasOwnProperty("scale")){
-                       var finalTranslate = [parseFloat(cookieJSONValue.translatex), parseFloat(cookieJSONValue.translatey)];
-                       var finalScale = [parseFloat(cookieJSONValue.scale)];
-                       return {"translate":finalTranslate, "scale":finalScale};
-                  }
-                }else{
-                  return undefined;
-                }
-            }
+BridgesVisualizer.getTransformObject = function(visID, transformCloud) {
+    var transformObject;
+    if(transformCloud &&
+       transformCloud.hasOwnProperty("translatex")    &&
+       transformCloud.hasOwnProperty("translatey")    &&
+       transformCloud.hasOwnProperty("scale")         &&
+       !isNaN(parseFloat(transformCloud.translatex))   &&
+       !isNaN(parseFloat(transformCloud.translatey))   &&
+       !isNaN(parseFloat(transformCloud.scale))){
+                transformObject = {"translatex":transformCloud.translatex, "translatey":transformCloud.translatey, "scale":transformCloud.scale};
+    }else{
+        transformObject =  getTransformObjectFromCookie(visID);
+        if(transformObject &&
+           transformObject.hasOwnProperty("translatex")   &&
+           transformObject.hasOwnProperty("translatey")   &&
+           transformObject.hasOwnProperty("scale")        &&
+           !isNaN(parseFloat(transformObject.translatex)) &&
+           !isNaN(parseFloat(transformObject.translatey)) &&
+           !isNaN(parseFloat(transformObject.scale))){
+              transformObject = {"translatex":transformObject.translatex, "translatey":transformObject.translatey, "scale":transformObject.scale};
+        }else{
+              transformObject = undefined;
         }
-        return "";
+    }
+
+    if(transformObject){
+        return transformObject;
+    }else{
+        return undefined;
+    }
 };
+
+function getTransformObjectFromCookie(visID){
+      var name = "vis"+visID+"-"+location.pathname + "=";
+      // var name = cname + "=";
+      var ca = document.cookie.split(';');
+      // console.log(ca);
+      for(var i=0; i<ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              // return c.substring(name.length, c.length);
+              var cookieStringValue = c.substring(name.length, c.length);
+              var cookieJSONValue;
+              try{
+                  cookieJSONValue = JSON.parse(cookieStringValue);
+              }catch(err){
+                  console.log(err, cookieStringValue);
+              }
+
+              if(cookieJSONValue&&
+                 cookieJSONValue.hasOwnProperty("translatex") &&
+                 cookieJSONValue.hasOwnProperty("translatey") &&
+                 cookieJSONValue.hasOwnProperty("scale")){
+                      console.log("Loaded from cookie!");
+                      console.log({"translatex":parseFloat(cookieJSONValue.translatex),
+                                   "translatey":parseFloat(cookieJSONValue.translatey),
+                                   "scale":parseFloat(cookieJSONValue.scale)});
+                     return {"translatex":parseFloat(cookieJSONValue.translatex),
+                             "translatey":parseFloat(cookieJSONValue.translatey),
+                             "scale":parseFloat(cookieJSONValue.scale)};
+              }else{
+                return undefined;
+              }
+          }
+      }
+      return undefined;
+}
 
 d3.selection.prototype.moveToFront = function() {
     return this.each(function(){
@@ -165,6 +213,7 @@ var map = map || null;
 if( map )
   map( mapData );
 
+// console.log(data);
 /* create new assignments  */
 for (var key in data) {
   if (data.hasOwnProperty(key)) {
@@ -187,23 +236,23 @@ for (var key in data) {
     }
     else if(d3.sllist){
         var sortedNodes = sortListByLinks(data[key]);
-        d3.sllist(d3, "#vis" + key, width, height, sortedNodes);
+        d3.sllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
     else if(d3.csllist){
         var sortedNodes = sortListByLinks(data[key]);
         d3.csllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
     else if (d3.queue) {
-        d3.queue(d3, "#vis" + key, width, height, data[key].nodes);
+        d3.queue(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
     }
     else if (d3.array) {
-          d3.array(d3, "#vis" + key, width, height, data[key].nodes);
+          d3.array(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
     }
     else if (d3.array2d) {
-          d3.array2d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims);
+          d3.array2d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
     }
     else if (d3.array3d) {
-          d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims);
+          d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
     }
     else if (d3.graph) {
         d3.graph(d3, "#vis" + key, width, height, data[key]);
@@ -369,14 +418,17 @@ function savePositions () {
 //It also can be used with the tree visualization
 function saveTransform(){
     var visTransforms = {};
+    // for (var key = 0; key < data.length; key++) {
     for (var key in data) {
         var my_transform = d3.transform(d3.select("#vis"+key).select("g").attr("transform"));
         visTransforms[key] = {
+          // "index": key,
           "scale": parseFloat(my_transform.scale[0]),
           "translatex": parseFloat(my_transform.translate[0]),
           "translatey": parseFloat(my_transform.translate[1])
         };
     }
+    console.log(visTransforms);
 
     // send scale and translation data to the server to save
     $.ajax({
@@ -434,7 +486,7 @@ function sortListByLinks(unsortedNodes){
 
 // Saved the translate and scale of every visualization in an assignemts
 function saveVisStatesAsCookies(){
-    console.log(this);
+    // console.log(this);
     var exdays = 30;
     try{
       for (var key in data) {

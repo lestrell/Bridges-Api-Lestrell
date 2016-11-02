@@ -265,11 +265,11 @@ d3.bst = function (d3, canvasID, w, h) {
         });
 
         // Add line breaks to node labels
-        svgGroup.selectAll('text').each(insertLineBreaks);
+        svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
     }
 
 // Function to add line breaks to node labels/names
-function insertLineBreaks (d){
+function BridgesVisualizer.insertLinebreaks (d){
 
 	var el = d3.select(this);
     var words = d3.select(this).text().split('\n');

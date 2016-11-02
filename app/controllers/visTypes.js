@@ -49,8 +49,6 @@ exports.getVisTypeObject = function(toCheck) {
     };
     if( toCheck && validTypes[toCheck] )
       return validTypes[toCheck];
-    else if( toCheck && validTypes[toCheck.toString().toUpperCase()] )
-      return validTypes[toCheck.toString().toUpperCase()];
     else
         return {"vistype":"nodelink",   "script":"/js/graph.js",          "link":""                  	};
 };
@@ -58,19 +56,29 @@ exports.getVisTypeObject = function(toCheck) {
 
 exports.getArrayType = function(dims){
       if(dims){
-          var dimOne = parseInt(dims[0]);
-          var dimTwo = parseInt(dims[1]);
-          var dimThree = parseInt(dims[2]);
-          var is2D = dimTwo > 1 && dimThree == 1;
-          var is3D = dimTwo > 1 && dimThree > 1;
-          var is1D = !is2D && !is3D;
-          if(is1D){
-              return "Alist";
-          }else if (is2D) {
+          // var dimOne = parseInt(dims[0]);
+          // var dimTwo = parseInt(dims[1]);
+          // var dimThree = parseInt(dims[2]);
+          // var is2D = dimTwo > 1 && dimThree == 1;
+          // var is3D = dimTwo > 1 && dimThree > 1;
+          // var is1D = !is2D && !is3D;
+          // if (is2D) {
+          if(parseInt(dims[1]) > 1 && parseInt(dims[2]) == 1){
               return "Array2D";
-          }else{
+          }else if(parseInt(dims[1]) > 1 && parseInt(dims[2]) > 1){
               return "Array3D";
+          }else{
+              return "Alist";
           }
+          //
+          // if(is1D){
+          //     return "Alist";
+          // }else if (is2D) {
+          //     return "Array2D";
+          // }else{
+          //     return "Array3D";
+          // }
+
       }
       return "Alist"
 }

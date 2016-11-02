@@ -56,19 +56,7 @@ d3.queue = function(d3, canvasID, w, h, data) {
         })
         .attr("dy", ".35em")
 
-     var insertLinebreaks = function (d, i) {
-        var el = d3.select(this);
-        var words = d3.select(this).text().split('\n');
-        el.text('');
-
-        for (var i = 0; i < words.length; i++) {
-            var tspan = el.append('tspan').text(words[i]);
-            if (i > 0)
-                tspan.attr('x', 0).attr('dy', '15');
-        }
-    };
-
-   svg.selectAll('text').each(insertLinebreaks);
+   svg.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
     //we don't want to process the first node
     data.pop()
@@ -120,9 +108,9 @@ function mouseout() {
 }
 
 //// zoom function
-//function zoomHandler() {
-//    svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-//}
+function zoomHandler() {
+   svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
 //
 //function reset() {
 //    zoom.scale(1);
