@@ -7,12 +7,11 @@ Linked List visualization for Bridges
 
 d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
-    // var spacing = 5;        // spacing between elements
     var visID = canvasID.substr(4);
     var finalTranslate = [50, -5];
     var finalScale = 0.36;
 
-    var spacing = 115;
+    var spacing = 115; // spacing between elements
     var marginLeft = 20;
     var defaultSize = 100;  // default size of each element box
     var defaultSizeW = 160;  // default size of each element box
@@ -62,10 +61,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
         // .on("mouseover", mouseover)
         // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
-            //size = parseFloat(d.size || defaultSize);
-            size = defaultSize
-            // return "translate(" + (marginLeft + i * (spacing + size)) + ")";
-            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + size)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+size))) + ")";
+            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSize)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSize))) + ")";
         })
         .on("mouseover", BridgesVisualizer.textMouseover)
         .on("mouseout", BridgesVisualizer.textMouseout);
@@ -145,7 +141,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     nodes
         .append("line")
-        .attr("class","last-vertical-line")
+        .attr("class","forward-link")
         .attr("id", function(d,i){
             return "svg"+visID+"pointer-arrow-"+i;
         })
@@ -179,7 +175,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
           }
         })
         .attr("stroke",function(d,i){
-            if(d.linkone) return BridgesVisualizer.getColor(d.linkone.color);
+            if(d.forwardlink) return BridgesVisualizer.getColor(d.forwardlink.color);
             else return "black";
         })
         .attr("stroke-width",5)
@@ -204,24 +200,24 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
         for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
             d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
                 .append("line")
-                .attr("class","last-horizontal-line")
+                .attr("class","backward-horizontal-link")
                 .attr("stroke",function(){
-                    return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+                    return d3.select(this.parentNode).select(".forward-link").attr("stroke") || "black";
                 })
                 .attr("stroke-width",5)
                 .attr("y1", function(d,i){
                   // console.log(  );
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("y1");
                 })
                 .attr("y2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("y1");
                 })
                 .attr("x1", function(d,i){
                   return ( (elementsPerRow-1) * (-1*(spacing + defaultSize)) ) + 15;
 
                 })
                 .attr("x2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("x1");
                 })
                 .attr("display",function(d,i){
                     if(Object.keys(data).length-1 == qq){
@@ -234,20 +230,20 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
           d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
               .append("line")
               .attr("stroke",function(){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+                  return d3.select(this.parentNode).select(".forward-link").attr("stroke") || "black";
               })
               .attr("stroke-width",5)
               .attr("y1", function(d,i){
-                  return parseInt(d3.select(this.parentNode).select(".last-horizontal-line").attr("y1")) - 3;
+                  return parseInt(d3.select(this.parentNode).select(".backward-horizontal-link").attr("y1")) - 3;
               })
               .attr("y2", function(d,i){
-                  return parseInt( d3.select(this.parentNode).select(".last-horizontal-line").attr("y1") ) + 100;
+                  return parseInt( d3.select(this.parentNode).select(".backward-horizontal-link").attr("y1") ) + 100;
               })
               .attr("x1", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+                return d3.select(this.parentNode).select(".backward-horizontal-link").attr("x1");
               })
               .attr("x2", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+                return d3.select(this.parentNode).select(".backward-horizontal-link").attr("x1");
               })
               .attr("display",function(d,i){
                   if(Object.keys(data).length-1 == qq){
@@ -264,7 +260,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
         var last_g = svgGroup.select("#svg"+visID+"g"+parseInt(Object.keys(data).length-1));
 
-        last_g.select(".last-vertical-line")
+        last_g.select(".forward-link")
             .attr("class","nullarrowpointer")
             .attr("marker-start","url('#Circle')")
             .attr("marker-end","url('#Triangle')")
@@ -306,36 +302,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
             .style("display","block");
 
 
-
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
-
-    // function mouseover() {
-    //     // scale text size based on zoom factor
-    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //           .duration(250)
-    //           .style("display","block")
-    //           .style("font-size", function(d,i) {
-    //             if(i > elementsPerRow){
-    //               d3.select(this.parentNode).moveToFront();
-    //             }
-    //             return hoverSize(zoom.scale());
-    //           });
-    //     // BridgesVisualizer.textMouseover(this);
-    // }
-    //
-    // function mouseout() {
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //         .duration(750)
-    //         .style("display",function(d,i){
-    //           if(i > elementsPerRow){
-    //             d3.select(this.parentNode).moveToBack();
-    //           }
-    //           return "none";
-    //         })
-    //         .style("font-size", 14);
-    //     // BridgesVisualizer.textMouseout(this);
-    // }
 
     //// zoom function
     function zoomHandler() {

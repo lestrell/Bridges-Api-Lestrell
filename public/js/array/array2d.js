@@ -12,7 +12,6 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     var dataSize = Object.keys(data).length-1;
     var levelCount = -1;
 
-
     var visID = canvasID.substr(4);
     var finalTranslate = [50, -5];
     var finalScale = 0.36;
@@ -60,9 +59,9 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             //size = parseFloat(d.size || defaultSize);
-            size = defaultSize;
+            // size = defaultSize;
             // return "translate(" + (marginLeft + i * (spacing + size)) + ")";
-            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + size)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+size))) + ")";
+            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSize)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSize))) + ")";
         })
         .on("mouseover", BridgesVisualizer.textMouseover)
         .on("mouseout", BridgesVisualizer.textMouseout);
@@ -121,24 +120,6 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .attr("dy", ".35em");
 
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
-
-    // function mouseover() {
-    //     // scale text size based on zoom factor
-    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //           .duration(250)
-    //           .style("display","block")
-    //           .style("font-size", function(d) {
-    //             return hoverSize(zoom.scale());
-    //           });
-    // }
-    //
-    // function mouseout() {
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //         .duration(750)
-    //         .style("display","none")
-    //         .style("font-size", 14);
-    // }
 
     //// zoom function
     function zoomHandler() {

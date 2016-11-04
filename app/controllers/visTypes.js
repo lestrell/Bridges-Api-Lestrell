@@ -34,7 +34,23 @@ exports.getVisType = function(toCheck) {
         return "nodelink";
 };
 
-exports.getVisTypeObject = function(toCheck) {
+function doSomething(data, vistype){
+      var finalVistype;
+
+      if(data.visual){
+          finalVistype = visTypes.getVisType(data.visual);
+      } else { // hierarchical tree representation does not have data.visual
+          finalVistype = visTypes.getVisType(vistype);
+      }
+
+      if(finalVistype == "Alist" && data.dims){
+          finalVistype = visTypes.getArrayType(data.dims)
+      }
+
+      return finalVistype;
+}
+
+exports.getVisTypeObject = function(dataVisual, dataVistype) {
   var validTypes = {
       "nodelink":   {"vistype":"nodelink",   "script":"/js/graph.js",          "link":""                  	},
           "tree":   {"vistype":"tree",       "script":"/js/tree/lib/bst.js",   "link":"/css/vis/tree.css" 	},
@@ -47,6 +63,9 @@ exports.getVisTypeObject = function(toCheck) {
         "cllist":   {"vistype":"cllist",     "script":"/js/list/cllist.js",    "link":""				        		},
        "cdllist":   {"vistype":"cdllist",    "script":"/js/list/cdllist.js",   "link":""				        		}
     };
+
+    var toCheck = doSomething(dataVisual, dataVistype.vistype)
+
     if( toCheck && validTypes[toCheck] )
       return validTypes[toCheck];
     else
@@ -56,13 +75,6 @@ exports.getVisTypeObject = function(toCheck) {
 
 exports.getArrayType = function(dims){
       if(dims){
-          // var dimOne = parseInt(dims[0]);
-          // var dimTwo = parseInt(dims[1]);
-          // var dimThree = parseInt(dims[2]);
-          // var is2D = dimTwo > 1 && dimThree == 1;
-          // var is3D = dimTwo > 1 && dimThree > 1;
-          // var is1D = !is2D && !is3D;
-          // if (is2D) {
           if(parseInt(dims[1]) > 1 && parseInt(dims[2]) == 1){
               return "Array2D";
           }else if(parseInt(dims[1]) > 1 && parseInt(dims[2]) > 1){
@@ -70,15 +82,6 @@ exports.getArrayType = function(dims){
           }else{
               return "Alist";
           }
-          //
-          // if(is1D){
-          //     return "Alist";
-          // }else if (is2D) {
-          //     return "Array2D";
-          // }else{
-          //     return "Array3D";
-          // }
-
       }
       return "Alist"
 }

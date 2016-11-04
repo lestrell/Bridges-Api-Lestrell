@@ -11,9 +11,9 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     var spacing = 115;  // spacing between elements
     var marginLeft = 20;
-    var defaultSize = 100;  // default size of each element box
+    var defaultSizeH = 100;  // default size of each element box
     var defaultSizeW = 160;  // default size of each element box
-    var elementsPerRow = 4 * parseInt((w - (spacing + defaultSize)) / (spacing + defaultSize));
+    var elementsPerRow = 4 * parseInt((w - (spacing + defaultSizeH)) / (spacing + defaultSizeH));
 
     var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
     if(transformObject){
@@ -47,7 +47,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
     svgGroup.attr('transform', 'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
     allSVG.push(svgGroup);
 
-    // var elementsPerRow = 4 * parseInt((w - (spacing + defaultSize)) / (spacing + defaultSize));
+    // var elementsPerRow = 4 * parseInt((w - (spacing + defaultSizeH)) / (spacing + defaultSizeH));
     // var elementsPerRow = 2;
     // var elementsPerRow = data.rows || Object.keys(data).length;
 
@@ -61,10 +61,10 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         // .on("mouseover", mouseover)
         // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
-            //size = parseFloat(d.size || defaultSize);
-            size = defaultSize;
+            //size = parseFloat(d.size || defaultSizeH);
+            // size = defaultSizeH;
             //return "translate(" + (marginLeft + i * (spacing + size)) + ")";
-            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + size)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+size))) + ")";
+            return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSizeH)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSizeH))) + ")";
         })
         .on("mouseover", BridgesVisualizer.textMouseover)
         .on("mouseout", BridgesVisualizer.textMouseout);
@@ -76,7 +76,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
           return "svg"+visID+"rect"+i;
         })
         .attr("height", function(d) {
-            return defaultSize;
+            return defaultSizeH;
         })
         .attr("width", function(d) {
             return defaultSizeW;
@@ -136,12 +136,12 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         })
         .attr("fill", "black")
         .attr("x", 40)
-        .attr("y", defaultSize / 2)
+        .attr("y", defaultSizeH / 2)
         .attr("dy", ".35em");
 
     nodes
         .append("line")
-        .attr("class","last-vertical-line")
+        .attr("class","forward-link")
         .attr("id", function(d,i){
             return "svg"+visID+"pointer-arrow-"+i;
         })
@@ -155,7 +155,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         })
         .attr("y2", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return defaultSize - 70;
+            return defaultSizeH - 70;
           }else{
             return 30;
           }
@@ -172,14 +172,9 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
           else{ return 225; }
         })
         .attr("stroke",function(d,i){
-            if(d.linkone) return BridgesVisualizer.getColor(d.linkone.color);
+            if(d.forwardlink) return BridgesVisualizer.getColor(d.forwardlink.color);
             else return "black";
         })
-        // I think the stroke attributes for this new linkedlist are not
-        // .attr("stroke-width",function(d,i){
-        //    console.log(d);
-        //    if(d.linkone)return d.linkone.width || 5;
-        // })
         .attr("stroke-width",5)
         .attr("marker-end",function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
@@ -201,45 +196,42 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     nodes
         .append("line")
-        .attr("class","last-vertical-line-two")
+        .attr("class","backward-link")
         .attr("id", function(d,i){
             return "svg"+visID+"pointer-arrow-two"+i;
         })
         .attr("y1", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            // return 198;
-            return 160 - 30;
+            return 190;
           }else{
             return 70;
           }
         })
         .attr("y2", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return defaultSize - 25;
+            return defaultSizeH - 25;
           }else{
             return 70;
           }
         })
         .attr("x1", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return 145  - 10;
+            return 135;
           }else{
             return 152;
           }
         })
         .attr("x2", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return 145  - 10;
+            return 135;
           }else{
             return 232;
           }
         })
         .attr("stroke",function(d,i){
-            if(d.linktwo != undefined && d.linktwo.color) return BridgesVisualizer.getColor(d.linktwo.color);
+            if(d.backwardlink != undefined && d.backwardlink.color) return BridgesVisualizer.getColor(d.backwardlink.color);
             else return "black";
-          //  return BridgesVisualizer.getColor(d.linktwo.color) || "black";
         })
-        // .attr("stroke","pink")
         .attr("stroke-width",5)
         .attr("marker-end",function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
@@ -262,23 +254,23 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         for(var qq = elementsPerRow-1; qq < data_length; qq=qq+ (1*elementsPerRow) ){
             d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
                 .append("line")
-                .attr("class","last-horizontal-line")
+                .attr("class","backward-horizontal-link")
                 .attr("stroke",function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+                  return d3.select(this.parentNode).select(".forward-link").attr("stroke") || "black";
                     // return d.linksourcecolor || "black";
                 })
                 .attr("stroke-width",5)
                 .attr("y1", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("y1");
                 })
                 .attr("y2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("y1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("y1");
                 })
                 .attr("x1", function(d,i){
-                  return ( (elementsPerRow-1) * (-1*(spacing + defaultSize)) ) + 15 + 10;
+                  return ( (elementsPerRow-1) * (-1*(spacing + defaultSizeH)) ) + 15 + 10;
                 })
                 .attr("x2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
+                  return d3.select(this.parentNode).select(".forward-link").attr("x1");
                 })
                 .attr("display",function(d,i){
                     if(Object.keys(data).length-1 == qq){
@@ -289,26 +281,26 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
 
             d3.select(d3.select("#svg"+visID+"pointer-arrow-two"+qq)[0][0].parentNode)
                 .append("line")
-                .attr("class","last-horizontal-line-two")
+                .attr("class","forward-horizontal-link")
                 .attr("stroke",function(d,i){
-                    return d3.select(this.parentNode).select(".last-vertical-line-two").attr("stroke") || "black";
+                    return d3.select(this.parentNode).select(".backward-link").attr("stroke") || "black";
                     // return d.linksourcecolor || "black";
                 })
                 .attr("stroke-width",5)
                 .attr("y1", function(d,i){
                   // console.log(  );
-                  return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
+                  return d3.select(this.parentNode).select(".backward-link").attr("y1");
                 })
                 .attr("y2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line-two").attr("y1");
+                  return d3.select(this.parentNode).select(".backward-link").attr("y1");
                 })
                 .attr("x1", function(d,i){
-                  // d3.select(this.parentNode).select(".last-vertical-line").attr("x1");
-                  return ( (elementsPerRow-1) * (-1*(spacing + defaultSize)) ) + 15 - 10;
+                  // d3.select(this.parentNode).select(".forward-link").attr("x1");
+                  return ( (elementsPerRow-1) * (-1*(spacing + defaultSizeH)) ) + 15 - 10;
                   // return 40;
                 })
                 .attr("x2", function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line-two").attr("x1");
+                  return d3.select(this.parentNode).select(".backward-link").attr("x1");
                   // return 80;
                 })
                 .attr("display",function(d,i){
@@ -322,20 +314,20 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
           d3.select(d3.select("#svg"+visID+"pointer-arrow-"+qq)[0][0].parentNode)
               .append("line")
               .attr("stroke",function(d,i){
-                  return d3.select(this.parentNode).select(".last-vertical-line").attr("stroke") || "black";
+                  return d3.select(this.parentNode).select(".forward-link").attr("stroke") || "black";
               })
               .attr("stroke-width",5)
               .attr("y1", function(d,i){
-                  return parseInt(d3.select(this.parentNode).select(".last-horizontal-line").attr("y1")) - 3;
+                  return parseInt(d3.select(this.parentNode).select(".backward-horizontal-link").attr("y1")) - 3;
               })
               .attr("y2", function(d,i){
-                  return parseInt( d3.select(this.parentNode).select(".last-horizontal-line").attr("y1") ) + 100 - 25;
+                  return parseInt( d3.select(this.parentNode).select(".backward-horizontal-link").attr("y1") ) + 100 - 25;
               })
               .attr("x1", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+                return d3.select(this.parentNode).select(".backward-horizontal-link").attr("x1");
               })
               .attr("x2", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line").attr("x1");
+                return d3.select(this.parentNode).select(".backward-horizontal-link").attr("x1");
               })
               .attr("marker-end","url('#Triangle')")
               .attr("display",function(d,i){
@@ -346,20 +338,20 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
           d3.select(d3.select("#svg"+visID+"pointer-arrow-two"+qq)[0][0].parentNode)
               .append("line")
               .attr("stroke",function(d,i){
-                return d3.select(this.parentNode).select(".last-vertical-line-two").attr("stroke") || "black";
+                return d3.select(this.parentNode).select(".backward-link").attr("stroke") || "black";
               })
               .attr("stroke-width",5)
               .attr("y1", function(d,i){
-                  return parseInt(d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1")) - 3;
+                  return parseInt(d3.select(this.parentNode).select(".forward-horizontal-link").attr("y1")) - 3;
               })
               .attr("y2", function(d,i){
-                  return parseInt( d3.select(this.parentNode).select(".last-horizontal-line-two").attr("y1") ) + 100 + 55;
+                  return parseInt( d3.select(this.parentNode).select(".forward-horizontal-link").attr("y1") ) + 100 + 55;
               })
               .attr("x1", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+                return d3.select(this.parentNode).select(".forward-horizontal-link").attr("x1");
               })
               .attr("x2", function(d,i){
-                return d3.select(this.parentNode).select(".last-horizontal-line-two").attr("x1");
+                return d3.select(this.parentNode).select(".forward-horizontal-link").attr("x1");
               })
               .attr("marker-end","url('#Circle')")
               .attr("display",function(d,i){
@@ -389,7 +381,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         .attr("y1",70)
         .attr("y2",70);
 
-    last_g.select(".last-vertical-line")
+    last_g.select(".forward-link")
         .attr("class","nullendarrowpointer")
         .attr("stroke",function(d,i){
             return "black";
@@ -401,7 +393,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         .attr("y1",30)
         .attr("y2",30);
 
-    last_g.select(".last-vertical-line-two")
+    last_g.select(".backward-link")
         .attr("display","none");
 
    var squareSize = 60;
@@ -426,11 +418,11 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
     last_g
         .append("rect")
           .attr("height", function(d) {
-              //return parseFloat(d.size || defaultSize);
+              //return parseFloat(d.size || defaultSizeH);
               return squareSize;
           })
           .attr("width", function(d) {
-              //return parseFloat(d.size || defaultSize);
+              //return parseFloat(d.size || defaultSizeH);
               //alert(defaultSizeW);
               return squareSize;
           })

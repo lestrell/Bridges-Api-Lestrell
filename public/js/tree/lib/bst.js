@@ -260,28 +260,12 @@ d3.bst = function (d3, canvasID, w, h) {
         svgGroup.selectAll('text.nodeLabel').each(BridgesVisualizer.insertLinebreaks);
     }
 
-// Function to add line breaks to node labels/names
-function BridgesVisualizer.insertLinebreaks (d){
-	var el = d3.select(this);
-    var words = d3.select(this).text().split('\n');
-
-    // if(words.length > 1) {
-        el.text('');
-
-        for (var i = 0; i < words.length; i++) {
-            var tspan = el.append('tspan').text(words[i]);
-            if (i > 0)
-            tspan.attr('x',"20").attr('dy','15');
-            //tspan.attr('x',"0").attr('dy','15');
-        }
-    // }
-}
 
 // //    // zoom function
-// function zoomHandler() {
-//     //console.log("zoom");
-//     svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-// }
+function zoomHandler() {
+    //console.log("zoom");
+    svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
 
 function dragstarted() {
     //console.log("dragstart");

@@ -33,27 +33,25 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   var drag = force.drag();
   drag.on("dragstart",dragstart);
 
-  // var visID = canvasID.substr(4);
-  // var finalTranslate = [519, 211];
-  // var finalScale = 1;
-  // // var svgGroup;
-  //
-  // var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
-  // if(transformObject){
-  //      finalTranslate = [transformObject.translatex,transformObject.translatey];
-  //      finalScale = transformObject.scale;
-  // }else{
-  //   console.log("Loaded from default!");
-  // }
+  var visID = canvasID.substr(4);
+  var finalTranslate = [519, 211];
+  var finalScale = 1;
+  var transformObject = BridgesVisualizer.getTransformObject(visID, transformCloud);
+  if(transformObject){
+       finalTranslate = [transformObject.translatex,transformObject.translatey];
+       finalScale = transformObject.scale;
+  }else{
+    console.log("Loaded from default!");
+  }
 
-  
+
   // error when zooming directly after pan on OSX
   // https://github.com/mbostock/d3/issues/2205
    var zoom = d3.behavior.zoom()
           .scaleExtent([0.1,5])
           .on("zoom", zoomHandler)
-          .scale(finalScale)
-          .translate(finalTranslate);
+          // .scale(finalScale)
+          // .translate(finalTranslate);
       allZoom.push(zoom);
 
   var defaultColors = d3.scale.category20(); //10 or 20
@@ -65,7 +63,9 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
       .classed("svg", true)
       .call(zoom);
 
-  svgGroup = vis.append("g");
+  svgGroup = vis.append("g")
+        .attr("transform", "translate(" + finalTranslate + ")scale(" + finalScale + ")");
+
       allSVG.push(svgGroup);
 
   vis.append("svg:defs").selectAll("marker")
@@ -111,8 +111,6 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   var node = svgGroup.selectAll(".node")
       .data(nodes)
       .enter().append("g")
-      // .on("mouseover", mouseover)
-      // .on("mouseout", mouseout)
       .on("mouseover", BridgesVisualizer.textMouseover)
       .on("mouseout", BridgesVisualizer.textMouseout)
       .on("dblclick", dblclick)
@@ -167,9 +165,6 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
                   d.target.x + "," +
                   d.target.y;
           });
-  }).on('end', function() {
-        // layout is done
-        // callback();
   });
 
   // function mouseover() {

@@ -308,19 +308,19 @@ exports.show = function (req, res, next) {
             allAssigns[i] = data;
         }
 
-        var finalVistype;
+        // var finalVistype;
+        //
+        // if(data.visual){
+        //     finalVistype = visTypes.getVisType(data.visual);
+        // } else { // hierarchical tree representation does not have data.visual
+        //     finalVistype = visTypes.getVisType(assignments[0].vistype);
+        // }
+        //
+        // if(finalVistype == "Alist" && data.dims){
+        //     finalVistype = visTypes.getArrayType(data.dims)
+        // }
 
-        if(data.visual){
-            finalVistype = visTypes.getVisType(data.visual);
-        } else { // hierarchical tree representation does not have data.visual
-            finalVistype = visTypes.getVisType(assignments[0].vistype);
-        }
-
-        if(finalVistype == "Alist" && data.dims){
-            finalVistype = visTypes.getArrayType(data.dims)
-        }
-
-        var vistypeObject = visTypes.getVisTypeObject(finalVistype);
+        var vistypeObject = visTypes.getVisTypeObject(data, assignments[0]);
 
         // console.log(Array.isArray(toInclude));
 
