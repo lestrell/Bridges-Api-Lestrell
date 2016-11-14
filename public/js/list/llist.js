@@ -4,7 +4,6 @@ Linked List visualization for Bridges
 
 */
 
-
 d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     var visID = canvasID.substr(4);
@@ -48,9 +47,6 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
     svgGroup.attr('transform', 'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
     allSVG.push(svgGroup);
 
-    // var elementsPerRow = 4 * parseInt((w - (spacing + defaultSize)) / (spacing + defaultSize));
-    // var elementsPerRow = 2;
-
     // Bind nodes to array elements
     var nodes = svgGroup.selectAll("nodes")
         .data(data)
@@ -58,8 +54,6 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
         .attr("id",function(d,i){
           return "svg"+visID+"g"+i;
         })
-        // .on("mouseover", mouseover)
-        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSize)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSize))) + ")";
         })

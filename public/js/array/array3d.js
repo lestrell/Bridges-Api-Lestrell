@@ -61,8 +61,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     var nodes = svgGroup.selectAll("nodes")
         .data(data)
         .enter().append("g")
-        // .on("mouseover", mouseover)
-        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
             return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSize)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSize))) + ")";
         })
@@ -79,11 +77,9 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
             return "rect"+i;
         })
         .attr("height", function(d) {
-            //return parseFloat(d.size || defaultSize);
             return defaultSize;
         })
         .attr("width", function(d) {
-            //return parseFloat(d.size || defaultSize);
             return defaultSize;
         })
         .style("fill", function(d) {
@@ -108,7 +104,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
               levelCount = 0;
           }
           return "("+threeLevel+", "+(i % elementsPerRow)+", "+levelCount+")";
-          // return "("+levelCount+", "+(i % elementsPerRow)+", "+threeLevel+")";
         })
         .attr("y", 115)
         .attr("x", defaultSize / 4);
@@ -121,7 +116,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-          // return d.name.substr(0,3)+"...";
           return d.name;
         })
         .attr("fill", "black")
@@ -194,33 +188,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .attr("x2", d3.select(".last-v").attr("x1"))
         .attr("stroke", "black")
         .attr("stroke-width",5);
-
-    // function mouseover() {
-    //     // scale text size based on zoom factor
-    //     var hoverSize = d3.scale.linear().domain([0,0.7]).range([300, 14]).clamp(true);
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //           .duration(250)
-    //           .style("display","block")
-    //           .style("font-size", function(d,i) {
-    //             if(i > elementsPerRow){
-    //               d3.select(this.parentNode).moveToFront();
-    //             }
-    //             return hoverSize(zoom.scale());
-    //           });
-    // }
-    //
-    // function mouseout() {
-    //     d3.select(this).selectAll(".value-textview").transition()
-    //         .duration(750)
-    //         .style("display",function(d,i){
-    //           if(i > elementsPerRow){                d3.select(this).moveToFront();
-    //
-    //             d3.select(this.parentNode).moveToBack();
-    //           }
-    //           return "none";
-    //         })
-    //         .style("font-size", 14);
-    // }
 
     //// zoom function
     function zoomHandler() {

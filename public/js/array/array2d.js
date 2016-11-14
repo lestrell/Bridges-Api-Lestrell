@@ -29,8 +29,6 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     // https://github.com/mbostock/d3/issues/2205
 
 
-
-
     var zoom = d3.behavior.zoom()
         .translate(finalTranslate)
         .scale(finalScale)
@@ -55,12 +53,7 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     var nodes = svgGroup.selectAll("nodes")
         .data(data)
         .enter().append("g")
-        // .on("mouseover", mouseover)
-        // .on("mouseout", mouseout)
         .attr("transform", function(d, i) {
-            //size = parseFloat(d.size || defaultSize);
-            // size = defaultSize;
-            // return "translate(" + (marginLeft + i * (spacing + size)) + ")";
             return "translate(" + (marginLeft + ((i % elementsPerRow) * (spacing + defaultSize)))+ "," + ((h/4) + ((Math.floor(i / elementsPerRow)) * (spacing+defaultSize))) + ")";
         })
         .on("mouseover", BridgesVisualizer.textMouseover)
@@ -69,11 +62,9 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     // Create squares for each array element
     nodes.append("rect")
         .attr("height", function(d) {
-            //return parseFloat(d.size || defaultSize);
             return defaultSize;
         })
         .attr("width", function(d) {
-            //return parseFloat(d.size || defaultSize);
             return defaultSize;
         })
         .style("fill", function(d) {

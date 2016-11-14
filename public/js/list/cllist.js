@@ -86,7 +86,7 @@ d3.csllist = function(d3, canvasID, w, h, data, transformCloud) {
           return i;
         })
         .attr("y", 115)
-        .attr("x", defaultSizeW / 2 - 5);
+        .attr("x", (defaultSizeW / 2) - 5);
 
     nodes
         .append("line")

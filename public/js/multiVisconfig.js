@@ -155,9 +155,14 @@ BridgesVisualizer.textMouseover = function(d) {
                             .size(BridgesVisualizer.scaleSize(40))();
                 }).style("stroke", "yellow").style("stroke-width", 5);
     }
+
+    var opacity_value = 0;
+    if(d.name.trim().length > 0){
+      opacity_value = 0.9;
+    }
     div.transition()
         .duration(200)
-        .style("opacity", .9);
+        .style("opacity", opacity_value);
     div	.html(d.name)
         .style("left", (d3.event.pageX) + "px")
         .style("top", (d3.event.pageY) + "px");
@@ -465,7 +470,7 @@ function sortListByLinks(unsortedNodes){
         getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
     }
 
-    // head = unsortedNodes.head || Object.keys(nodes).length-1;
+    // head = Object.keys(nodes).length-1;
     head = 0;
     // for(var h in nodes){//looping through the length of the nodes
     for(var i = 0; i < nodes.length; i++){
