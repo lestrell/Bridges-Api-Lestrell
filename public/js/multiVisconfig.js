@@ -201,6 +201,7 @@ var map = map || null;
 if( map )
   map( mapData );
 
+console.log(JSON.stringify(data));
 console.log(data);
 /* create new assignments  */
 for (var key in data) {
@@ -215,7 +216,7 @@ for (var key in data) {
         bst.make(data[key]);
     }
     else if(d3.dllist){
-        var sortedNodes = sortListByLinks(data[key]);
+        var sortedNodes = sortDoublyListByLinks(data[key]);
         d3.dllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
     else if(d3.cdllist){
@@ -457,6 +458,33 @@ function alertMessage(message, status) {
   setTimeout(function(){
      $("#updateStatus").hide();
   },2500);
+}
+
+//this methods sorts any Doubly Links linkedlist by links
+function sortDoublyListByLinks(unsortedNodes){
+    var getSourceFromTarget = {}, getLinkFromSource = {}, sortedNodes = [], head;
+    var links = unsortedNodes.links;
+    var nodes = unsortedNodes.nodes;
+
+    for(var i = 0; i < links.length; i++){
+        getSourceFromTarget[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
+        getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
+    }
+
+    // head = Object.keys(nodes).length-1;
+    head = 0;
+    // for(var h in nodes){//looping through the length of the nodes
+    for(var i = 0; i < nodes.length; i++){
+        var key = head + "-" + getSourceFromTarget[head];//link from source to target
+        var yek = getSourceFromTarget[head] + "-" + head;//link from target to source
+        if(getLinkFromSource[key]) nodes[head]['forwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
+        if(getLinkFromSource[yek]) nodes[head]['backwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
+        if(nodes[head])sortedNodes.push(nodes[head]);
+        head = getSourceFromTarget[head];//getting the next target
+        // if(!head)break;
+    }
+    // links = nodes = undefined; console.log(sortedNodes);
+    return sortedNodes;
 }
 
 //this methods sorts any linkedlist by links
