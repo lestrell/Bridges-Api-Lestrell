@@ -1,11 +1,27 @@
+String.prototype.replaceAll = function(target, replacement) {
+  return this.split(target).join(replacement);
+};
+
+(function($) {
+    $.fn.hasNoScrollBar = function() {
+        return !(this.get(0) ? this.get(0).scrollHeight > this.innerHeight() : false);
+    }
+})(jQuery);
+
 // Bridges visualizer object to remove vis methods from the global scope
 BridgesVisualizer.strokeWidthRange = d3.scale.linear().domain([1,10]).range([1,15]).clamp(true);
 
 // Offsets for text labels for visualization types
 BridgesVisualizer.textOffsets = {
-  "graph": { "x": 22, "y": -10 },
-  "tree": { "x": 200, "y": -15 },
-  "default": { "x": 0, "y": 0}
+    "graph": { "x":  22,  "y": -10 },
+     "tree": { "x":  20,  "y": -15 },
+    "Alist": { "x": -20,  "y": -50 },
+  "Array2D": { "x": -20,  "y": -20 },
+  "Array3D": { "x": -20,  "y": -20 },
+    "llist": { "x": -20,  "y": -20 },
+   "dllist": { "x": -20,  "y": -20 },
+  "cdllist": { "x": -20,  "y": -20 },
+  "default": { "x":   0,  "y": 0   }
 };
 
 // function to return color depending on the style of representation
@@ -28,26 +44,57 @@ BridgesVisualizer.insertLinebreaks = function (d, i) {
         }
     };
 
-// BridgesVisualizer.textMouseover = function(el, visType) {
-//   var textElm = d3.select(el).select("text");
-//   textElm.transition().delay(50).duration(750).style("opacity",1.0);
+// BridgesVisualizer.textMouseover = function(el) {
+//   var textElm = d3.select(el).select(".nodeLabel");
+//   var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
+//   $("bridges-tooltip").offset({top:offset.y,left:offset.x}).html(textElm.text());
+//
+//   // textElm.transition().delay(50).duration(750).style("opacity",1.0);
 //   // var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
-//   // rect = d3.select(el).insert("svg:rect", "text").classed("bgRect", true)
-//   //   .attr("id", "bgRect")
+//   // var g = d3.select(el).insert("svg:g").classed("bgRect",true);
+//   //
+//   // // console.log(textElm.text());
+//   // var textValue = textElm.text();
+//   // var textValueTemp = "";
+//   // var count = 0;
+//   // for(var i = 0; i < textValue.length; i++){
+//   //     console.log(textValue[i]);
+//   //     textValueTemp = textValueTemp + textValue[i];
+//   //     if(count > 100){
+//   //       textValueTemp = textValueTemp + "\n";
+//   //       count = 0;
+//   //     }
+//   //     count++;
+//   // }
+//   //
+//   // rect = g
+//   //   .append("svg:rect")
+//   //   .attr("x", offset.x + -10)
+//   //   .attr("y", offset.y + -20)
+//   //   .attr("fill","yellow")
+//   //   // .attr("width", 50)
+//   //   // .attr("height", 50)
+//   //   .attr("width", 20 + textElm.node().textContent.length * 5)
+//   //   .attr("height", 18 * textElm.node().childElementCount + (20))
+//   //   .attr("opacity", 1);
+//   // text = g
+//   //   .append("svg:text")
+//   //   .text(textValueTemp)
 //   //   .attr("x", offset.x)
 //   //   .attr("y", offset.y)
-//   //   .attr("width", 20 + textElm.node().textContent.length * 5)
-//   //   .attr("height", 18 * textElm.node().childElementCount);
-//   // console.log(rect);
-//   // rect.transition().duration(500).style("opacity", 1.0);
+//   //   .attr("width", 50)
+//   //   .attr("height", 50);
+//   // // console.log(rect);
+//   // // rect.insert(textElm)
+//   // text.transition().duration(500);
 // };
 //
 // BridgesVisualizer.textMouseout = function(el) {
-//   d3.select(el).selectAll("#bgRect").transition().duration(500).style("opacity", 0.0);
-//   d3.select(el).selectAll("#bgRect").transition().delay(500).remove();
-//   d3.select(el).select("text").transition().duration(500).style("opacity", 0.0);
+//   // d3.select(el).selectAll(".bgRect").transition().duration(500).style("opacity", 0.0);
+//   // d3.select(el).selectAll(".bgRect").transition().delay(500).remove();
+//   // d3.select(el).select("text").transition().duration(500).style("opacity", 0.0);
 // };
-
+//
 // function to return the transformObject saved positions
 BridgesVisualizer.getTransformObject = function(visID, transformCloud) {
     var transformObject = getTransformObjectFromCloud(transformCloud);
@@ -142,8 +189,8 @@ var div = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-BridgesVisualizer.textMouseover = function(d) {
-    //the design can be changed later, if not appropriate. Mainly for implementation
+BridgesVisualizer.textMouseover = function(d,i) {
+    var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
     if(d3.select(this).select("rect"))
         d3.select(this).select("rect").style("stroke", "yellow").style("stroke-width", 10);
 
@@ -156,17 +203,37 @@ BridgesVisualizer.textMouseover = function(d) {
                 }).style("stroke", "yellow").style("stroke-width", 5);
     }
 
-    var opacity_value = 0;
     if(d.name.trim().length > 0){
-      opacity_value = 0.9;
+        var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br>" + d.name.replaceAll("\n","</br>");
+    }else{
+        var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br> NULL";
     }
+
+    var opacityValue = 0.9;
+
     div.transition()
         .duration(200)
-        .style("opacity", opacity_value);
-    div	.html(d.name)
-        .style("left", (d3.event.pageX) + "px")
-        .style("top", (d3.event.pageY) + "px");
+        .style("opacity", opacityValue);
+    div	.html(textValueWithLineBreak)
+        .style("left", (d3.event.pageX) + offset.x + "px")
+        .style("top", (d3.event.pageY) + offset.y + "px");
+
+    $(".tooltip").find("h4").css("background-color", BridgesVisualizer.getColor(d.color));
+    // $(".tooltip").find("h4").css("width", $(".tooltip").innerWidth() + 12);
+    if($(".tooltip").hasNoScrollBar()){
+        $(".tooltip").css("pointer-events","none").css("border-radius","8px");
+    }else{
+        $(".tooltip").css("pointer-events","auto").css("border-radius","8px 0px 0px 8px");
+    }
+
+    textValueWithLineBreak = "";
 };
+
+$(".tooltip").mouseout(function(){
+    $(this).html('');
+    $(this).css("opacity","0").css("pointer-events","none");
+});
+
 
 BridgesVisualizer.textMouseout = function(d) {
     if(d3.select(this).select("rect"))
@@ -180,9 +247,17 @@ BridgesVisualizer.textMouseout = function(d) {
                             .size(BridgesVisualizer.scaleSize(d.size||1))();
                 }).style("stroke", "").style("stroke-width", 0);
     }
-    div.transition()
-        .duration(500)
-        .style("opacity", 0);
+
+
+    if($(".tooltip").css("pointer-events") == "none"){
+        $(".tooltip").html('');
+        $(".tooltip").css("opacity","0").css("pointer-events","none");
+    }
+
+    // div.transition()
+    //     .duration(500)
+    //     .style("opacity", 0);
+    // changePointerEventOff();
 };
 
 // bind event handlers for ui
@@ -201,7 +276,7 @@ var map = map || null;
 if( map )
   map( mapData );
 
-console.log(JSON.stringify(data));
+// console.log(JSON.stringify(data));
 console.log(data);
 /* create new assignments  */
 for (var key in data) {
@@ -217,6 +292,7 @@ for (var key in data) {
     }
     else if(d3.dllist){
         var sortedNodes = sortDoublyListByLinks(data[key]);
+        console.log(sortedNodes);
         d3.dllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
     else if(d3.cdllist){
@@ -555,3 +631,13 @@ try{
 }catch(err){
     console.log(err);
 }
+
+// if(visType == "tree"){
+  $("#assignmentToggle").click(function(){
+    if(d3.selectAll(".nodeLabel").style("display") == "none" || d3.selectAll(".nodeLabel").style("opacity") == "0"){
+        d3.selectAll(".nodeLabel").style("display","block").style("opacity","1");
+    }else {
+        d3.selectAll(".nodeLabel").style("display","none").style("opacity","0");
+    }
+  });
+// }

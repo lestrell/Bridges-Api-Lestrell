@@ -81,7 +81,7 @@ d3.array = function(d3, canvasID, w, h, data, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           return d.name;
         })
@@ -91,7 +91,7 @@ d3.array = function(d3, canvasID, w, h, data, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
@@ -103,6 +103,16 @@ d3.array = function(d3, canvasID, w, h, data, transformCloud) {
         .attr("dy", ".35em");
 
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
+
+    // Create squares for each array element
+    nodes.append("rect")
+        .attr("height", function(d) {
+            return defaultSize;
+        })
+        .attr("width", function(d) {
+            return defaultSize;
+        })
+        .attr("opacity","0");
 
     //// zoom function
     function zoomHandler() {

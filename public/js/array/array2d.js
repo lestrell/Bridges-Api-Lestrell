@@ -89,7 +89,7 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           return d.name + " " + d3.select(this.parentNode).select(".index-textview").text();
         })
@@ -99,7 +99,7 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {

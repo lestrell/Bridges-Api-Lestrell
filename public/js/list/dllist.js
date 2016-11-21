@@ -106,7 +106,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           return d.name;
         })
@@ -116,7 +116,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
@@ -190,7 +190,7 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         })
         .attr("y1", function(d,i){
           if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return 190;
+            return 130;
           }else{
             return 70;
           }
@@ -441,6 +441,16 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         .attr("width",40)
         .attr("height",40)
         .style("display","block");
+
+    nodes
+        .append("rect")
+        .attr("height", function(d) {
+            return defaultSizeH;
+        })
+        .attr("width", function(d) {
+            return defaultSizeW + 52.5;
+        })
+        .style("opacity","0");
 
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 

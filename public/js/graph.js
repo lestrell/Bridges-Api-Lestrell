@@ -134,6 +134,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   //inner nodes
   node
       .append("text")
+      .attr("class","nodeLabel")
       .attr("x", BridgesVisualizer.textOffsets.graph.x + 2)
       .attr("y",  BridgesVisualizer.textOffsets.graph.y + 14)
       .style("color",'black')

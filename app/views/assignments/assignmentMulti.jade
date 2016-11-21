@@ -70,9 +70,15 @@ block content
                         label -
                 td.right
                       if (assignmentTitle.length > 0)
-                        div#assignmentTitle #{assignmentTitle}
+                        div
+                          span#assignmentTitle #{assignmentTitle}
+                          if (vistypeObject.vistype == "tree")
+                            button#assignmentToggle.btn.btn-primary ToggleLabel
                       else
-                        div#assignmentTitle Assignment #{assignmentNumber}
+                        div
+                          span#assignmentTitle Assignment #{assignmentNumber}
+                          if (vistypeObject.vistype == "tree")
+                            button#assignmentToggle.btn.btn-primary ToggleLabel
 
 
         -for (var i = 0; i < extent; i++) {
@@ -115,6 +121,7 @@ block footerjs
         //- var defaultvistype = "#{defaultvistype}";
         //- var defaultvistype = "#{defaultvistype}";
         var vistypeObject = "#{vistypeObject}";
+        var visType = "#{vistypeObject.vistype}";
         var mapData =  !{JSON.stringify(mapData)};
         var createMap =  !{JSON.stringify(createMap)};
         var BridgesVisualizer = {};

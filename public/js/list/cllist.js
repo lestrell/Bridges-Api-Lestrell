@@ -109,7 +109,7 @@ d3.csllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           return d.name;
         })
@@ -119,7 +119,7 @@ d3.csllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
@@ -329,6 +329,17 @@ d3.csllist = function(d3, canvasID, w, h, data, transformCloud) {
           // .attr("stroke","yellow")
           .attr("stroke-width",5)
           .attr("marker-start","url('#Triangle')");
+
+
+   nodes
+      .append("rect")
+      .attr("height", function(d) {
+          return defaultSize;
+      })
+      .attr("width", function(d) {
+          return defaultSizeW + 52.5;
+      })
+      .style("opacity","0");
 
     // bind linebreaks to text elements
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);

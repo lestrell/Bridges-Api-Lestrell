@@ -111,7 +111,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           if(d && d.name) return d.name;
         })
@@ -121,7 +121,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
@@ -298,11 +298,30 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
+    //transparent layer on top of the node, so the mouseover only enters to this rectangle on top.
+    nodes
+        .append("rect")
+        .attr("height", function(d) {
+            return defaultSize;
+        })
+        .attr("width", function(d) {
+            return defaultSizeW + 52.5;
+        })
+        .style("opacity","0");
+
     //// zoom function
     function zoomHandler() {
         zoom.translate(d3.event.translate);
         zoom.scale(d3.event.scale);
         svgGroup.attr("transform", "translate(" + (d3.event.translate) + ")scale(" + d3.event.scale + ")");
     }
+
+    // function mouseover(){
+    //   BridgesVisualizer.textMouseover(this);
+    // }
+    //
+    // function mouseout(){
+    //   BridgesVisualizer.textMouseout(this);
+    // }
 
 };

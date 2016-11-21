@@ -109,10 +109,19 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .attr("x", defaultSize / 4);
 
 
+    nodes
+        .append("text")
+        .attr("class","nodeLabel")
+        .text(function(d, i){
+          return d.name + " " + d3.select(this.parentNode).select(".index-textview").text();
+        })
+        .attr("y", -10)
+        .style("display","none");
+
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {

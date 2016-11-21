@@ -46,8 +46,14 @@ block content
                         div.gallery_link_title #{assignments[x].title}
                         div.gallery_link_small Assignment #{assignments[x].assignmentNumber}
                         div.gallery_link_small #{assignments[x].data[0].visual}
+
 block footerjs
     script.
+        var breakIfImageError = false;
         $(".visimg").on("error",function(x){
-            $(this).attr("src","/img/graphllist.png");
+            if(!breakIfImageError){
+              $(this).attr("src","/img/llist.png");
+              breakIfImageError = true;
+              console.log("onError");
+            }
         });

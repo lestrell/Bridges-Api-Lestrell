@@ -21,7 +21,6 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     var defaultSizeH = 100;  // default size of each element box
     var defaultSizeW = 160;  // default size of each element box
     var elementsPerRow = 4 * parseInt((w - (spacing + defaultSizeH)) / (spacing + defaultSizeH));
-
     // error when zooming directly after pan on OSX
     // https://github.com/mbostock/d3/issues/2205
     var zoom = d3.behavior.zoom()
@@ -107,7 +106,7 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show full array label above each element
     nodes
         .append("text")
-        .attr("class","value-textview")
+        .attr("class","nodeLabel")
         .text(function(d, i){
           return d.name;
         })
@@ -117,7 +116,7 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     // Show array labels inside each element
     nodes
         .append("text")
-        .attr("class", "value-elementview")
+        .attr("class", "nodeLabelInside")
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
@@ -467,7 +466,7 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
               }
 
               if( (Object.keys(data).length) % elementsPerRow == 0){
-                    return ((elementsPerRow-1) * (-1*(defaultSizeH + spacing)) ) + 110;
+                    return ((elementsPerRow-1) * (-1*(defaultSizeH + spacing)) ) - 110;
               }
 
               number_of_rows_left = parseInt(Object.keys(data).length) % elementsPerRow;
@@ -537,6 +536,17 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
 
     // bind linebreaks to text elements
     svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
+
+
+    nodes
+      .append("rect")
+      .attr("height", function(d) {
+          return defaultSizeH;
+      })
+      .attr("width", function(d) {
+          return defaultSizeW + 52.5;
+      })
+      .style("opacity","0");
 
     //// zoom function
     function zoomHandler() {
