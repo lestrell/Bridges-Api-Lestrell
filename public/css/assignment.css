@@ -243,6 +243,18 @@ svg{
   cursor: default !important;
 }
 
+text {
+    pointer-events: none;
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
+}
+
+
 /*div.tooltip {
   padding: 0px 12px 12px 0px;
   position: absolute;
@@ -330,7 +342,3 @@ div.tooltip:empty {
   width: auto;
   display:inline-block;
 }*/
-
-text {
-    pointer-events: none;
-}

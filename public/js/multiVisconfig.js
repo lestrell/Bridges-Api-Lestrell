@@ -190,9 +190,10 @@ var div = d3.select("body").append("div")
     .style("opacity", 0);
 
 BridgesVisualizer.textMouseover = function(d,i) {
+    // console.log(visType);
     var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
-    if(d3.select(this).select("rect"))
-        d3.select(this).select("rect").style("stroke", "yellow").style("stroke-width", 10);
+    if(d3.select(this).select("rect") && visType != "tree")
+        d3.select(this).select("rect").style("stroke", "yellow").style("stroke-width", 0);
 
     if(d3.select(this).select("path")){
             d3.select(this).select("path").transition()
@@ -200,8 +201,14 @@ BridgesVisualizer.textMouseover = function(d,i) {
                 .attr('d', function (d) {
                     return d3.svg.symbol().type(d.shape||"circle")
                             .size(BridgesVisualizer.scaleSize(40))();
-                }).style("stroke", "yellow").style("stroke-width", 5);
-    }
+                });
+
+            if(visType != "tree"){
+              d3.select(this).select("path").style("stroke", "yellow").style("stroke-width", 0);
+            }
+    };
+
+
 
     if(d.name.trim().length > 0){
         var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br>" + d.name.replaceAll("\n","</br>");
@@ -229,12 +236,6 @@ BridgesVisualizer.textMouseover = function(d,i) {
     textValueWithLineBreak = "";
 };
 
-$(".tooltip").mouseout(function(){
-    $(this).html('');
-    $(this).css("opacity","0").css("pointer-events","none");
-});
-
-
 BridgesVisualizer.textMouseout = function(d) {
     if(d3.select(this).select("rect"))
         d3.select(this).select("rect").style("stroke", "gray").style("stroke-width", 2);
@@ -245,7 +246,11 @@ BridgesVisualizer.textMouseout = function(d) {
                 .attr('d', function (d) {
                     return d3.svg.symbol().type(d.shape||"circle")
                             .size(BridgesVisualizer.scaleSize(d.size||1))();
-                }).style("stroke", "").style("stroke-width", 0);
+                });
+
+                if(visType != "tree"){
+                  d3.select(this).select("path").style("stroke", "").style("stroke-width", 0);
+                }
     }
 
 
@@ -259,6 +264,12 @@ BridgesVisualizer.textMouseout = function(d) {
     //     .style("opacity", 0);
     // changePointerEventOff();
 };
+
+$(".tooltip").mouseout(function(){
+    $(this).html('');
+    $(this).css("opacity","0").css("pointer-events","none");
+});
+
 
 // bind event handlers for ui
 d3.selectAll(".minimize").on("click", minimize);
@@ -276,8 +287,6 @@ var map = map || null;
 if( map )
   map( mapData );
 
-// console.log(JSON.stringify(data));
-console.log(data);
 /* create new assignments  */
 for (var key in data) {
   if (data.hasOwnProperty(key)) {

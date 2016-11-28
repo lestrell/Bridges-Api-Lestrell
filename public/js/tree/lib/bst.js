@@ -110,13 +110,16 @@ d3.bst = function (d3, canvasID, w, h) {
 
     return bst;
 
-    function toggle (d) {
-        console.log(d);
-        d3.select(d.parent).style("stroke", "yellow").style("stroke-width", 5);
+    function toggle (elem, d) {
+        // d3.select(d.parent).style("stroke", "yellow").style("stroke-width", 5);
         if (d.children) {
+            d3.selectAll(".node").selectAll("path").style("stroke", "yellow").style("stroke-width", 0);
+            d3.select(elem).select("path").style("stroke", "yellow").style("stroke-width", 5);
             d._children = d.children;
             d.children = null;
         } else {
+            d3.selectAll(".node").selectAll("path").style("stroke", "yellow").style("stroke-width", 0);
+            d3.select(elem).select("path").style("stroke", "yellow").style("stroke-width", 5);
             d.children = d._children;
             d._children = null;
         }
@@ -148,7 +151,14 @@ d3.bst = function (d3, canvasID, w, h) {
             .attr("transform", function(d) {
                 return "translate(" + source.x0 + "," + source.y0 + ")";
             })
-            .on("click", function(d) { toggle(d); update(d); })
+            .on("click", function(d) {
+                if(d.children && d.children[0].name == "NULL" && d.children[1].name == "NULL"){
+                    console.log(d);
+                }else{
+                    toggle(this, d);
+                    update(d);
+                }
+             })
             .on("mouseover", BridgesVisualizer.textMouseover)
             .on("mouseout", BridgesVisualizer.textMouseout)
             .style("display",function(d){
