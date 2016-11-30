@@ -18,8 +18,12 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   var nodes = data.nodes;
   var links = data.links;
 
+  var weights = [];
+
   for (i in links) {
      if (count<links[i].value) count = links[i].value;
+
+     if(weights.indexOf(links[i].weight) == -1){weights.push(links[i].weight);}
   }
 
   var force = d3.layout.force()
@@ -69,7 +73,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
       allSVG.push(svgGroup);
 
   vis.append("svg:defs").selectAll("marker")
-      .data(["end"])// Different path types defined here
+      .data(weights)// Different path types defined here
       .enter().append("svg:marker")
       .attr("id", String)
       .attr("viewBox", "0 -5 10 10")
@@ -80,6 +84,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
           return BridgesVisualizer.getColor(d.color) || "black";
       })
       .style("opacity", function(d) {
+          // return 0.5;
           return d.opacity || 1;
       })
       .attr("markerWidth", 10)
@@ -89,10 +94,14 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
       .attr("d", "M0,-5L10,0L0,5");
 
   var link = svgGroup.append("svg:g").selectAll("path")
-      .data(links)
+      // .data(links)
+      .data(force.links())
       .enter().append("svg:path")
+
       .attr("class", "link")
-      .attr("marker-end", "url(#end)")
+	    .attr("id",function(d,i) { return "linkId_" + i; })
+      .attr("marker-end", function(d) { return "url(#" + d.weight + ")"; })
+
       .style("stroke-width", function (d) {
           return BridgesVisualizer.strokeWidthRange(d.thickness) || 1;
       })
@@ -106,6 +115,39 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
           return d.dasharray || "";
       })
       .style("fill", "none");
+
+    var linktext = svgGroup.append("svg:g").selectAll("g.linklabelholder").data(force.links());
+
+    linktext.enter().append("g").attr("class", "linklabelholder")
+        .append("text")
+            .attr("id", function(d,i){
+                return "linklabel"+i;
+             })
+	          .style("font-size", "13px")
+            // .attr("x", "50")
+	          // .attr("y", "-20")
+            //  //  .attr("text-anchor", "start")
+            .attr("text-anchor", "middle")
+	          // .style("fill","#000")
+        .append("textPath")
+            .attr("xlink:href",function(d,i) { return "#linkId_" + i;})
+            .text(function(d) {
+	               return d.weight;
+	       });
+
+  // var use = svgGroup.append("use")
+  // .data(links)
+  //   .attr("xlink:href",function(d,i){
+  //     return "#MyPath" + i;
+  //   });
+  //
+  //   var textlink = svgGroup.append("text")
+  //   .data(links)
+  // .append("textPath")
+  //   .attr("xlink:href", function(d,i){
+  //     return "#MyPath" + i;
+  //   }).text("JustImagine");
+
 
   //outer node
   var node = svgGroup.selectAll(".node")
@@ -145,8 +187,11 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
       });
 
 
+
+
   // Add line breaks to node labels
-  svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
+  // insertLinebreaks is never used. But also, it moves the linklabels to not work.
+  // svgGroup.selectAll('text').each(BridgesVisualizer.insertLinebreaks);
 
   force.on("tick", function() {
       node
@@ -154,11 +199,21 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
           return "translate(" + d.x + "," + d.y + ")";
         });
 
+      // link.attr("d", function(d) {
+      //   var dx = d.target.x - d.source.x,
+      //       dy = d.target.y - d.source.y,
+      //       dr = Math.sqrt(dx * dx + dy * dy);
+      //   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+      // });
+
       link
-          .attr("d", function(d) {
+          .attr("d", function(d,i) {
               var dx = d.target.x - d.source.x,
                   dy = d.target.y - d.source.y,
                   dr = Math.sqrt(dx * dx + dy * dy);
+
+              d3.select("#linklabel"+i).attr("x", dr/2);
+
               return "M" +
                   d.source.x + "," +
                   d.source.y + "A" +
@@ -166,7 +221,17 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
                   d.target.x + "," +
                   d.target.y;
           });
+
+      link.moveToBack();
+
+      // linktext.attr("x", function(d,i){
+      //     return d3.select("#linkId_"+i).node().getBBox().y;
+      // });
+
+
+      // console.log(d3.select("#linkId_0").node().getBBox().y);
   });
+
 
   // function mouseover() {
   //     BridgesVisualizer.textMouseover(this, "graph");
@@ -202,8 +267,8 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   // Handle dragstart on force.drag()
   function dragstart(d) {
        d3.event.sourceEvent.stopPropagation();
-      d3.select(this).classed("fixed", d.fixed = true);
-      force.start();
+       d3.select(this).classed("fixed", d.fixed = true);
+       force.start();
   }
 
 };
