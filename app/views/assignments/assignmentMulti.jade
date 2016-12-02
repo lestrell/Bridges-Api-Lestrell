@@ -37,10 +37,10 @@ block content
                 button(class='optionButton', id='reset')
                         label Reset view
 
-                if (vistypeObject.vistype == "nodelink")
-                  button#savePosition.optionButton(
-                          onclick='savePositions()')
-                          label Save Positions
+                //- if (vistypeObject.vistype == "nodelink")
+                //-   button#savePosition.optionButton(
+                //-           onclick='savePositions()')
+                //-           label Save Positions
 
                 button#saveTransform.optionButton(
                         onclick='saveTransform()')
@@ -74,13 +74,9 @@ block content
                       if (assignmentTitle.length > 0)
                         div
                           span#assignmentTitle #{assignmentTitle}
-                          if (vistypeObject.vistype == "tree")
-                            button#assignmentToggle.btn.btn-primary ToggleLabel
                       else
                         div
                           span#assignmentTitle Assignment #{assignmentNumber}
-                          if (vistypeObject.vistype == "tree")
-                            button#assignmentToggle.btn.btn-primary ToggleLabel
 
 
         -for (var i = 0; i < extent; i++) {
@@ -118,16 +114,17 @@ block footerjs
     script.
         var data = !{JSON.stringify(data)};
         var assignmentNumber = !{JSON.stringify(assignmentNumber)};
-        //- var vistype = "#{vistype}";
-        //- var toIncludeScript = "#{toIncludeScript}";
-        //- var toIncludeScriptLink = "#{toIncludeScriptLink}";
-        //- var defaultvistype = "#{defaultvistype}";
-        //- var defaultvistype = "#{defaultvistype}";
-        var vistypeObject = "#{vistypeObject}";
-        var visType = "#{vistypeObject.vistype}";
+
         var mapData =  !{JSON.stringify(mapData)};
         var createMap =  !{JSON.stringify(createMap)};
         var BridgesVisualizer = {};
+        
+        
+    each script in linkResources.script
+        script(src = script)
+        
+    each css in linkResources.css
+        link(rel='stylesheet', href=css)
 
     // Map demonstrating locations in the assignment
     - if ( createMap )
@@ -135,15 +132,6 @@ block footerjs
         link(rel='stylesheet', href='/css/map.css')
         script( src = '//d3js.org/topojson.v1.min.js' )
         script( src = '/js/map.js' )
-
-    - if (vistypeObject.link)
-        link(rel='stylesheet', href='#{vistypeObject.link}')
-        script(src = '#{vistypeObject.script}')
-
-    - else if (vistypeObject.script)
-        script( src = '#{vistypeObject.script}' )
-
-
     - else
         script.
             var error = !{JSON.stringify(data)};

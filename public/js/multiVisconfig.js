@@ -1,5 +1,8 @@
+//stub
+var visType = "llist";
+
 BridgesVisualizer.parseDElement = function(){
-  
+
 }
 
 String.prototype.replaceAll = function(target, replacement) {
@@ -47,6 +50,9 @@ BridgesVisualizer.insertLinebreaks = function (d, i) {
                 tspan.attr('x', 0).attr('dy', '15');
         }
     };
+
+BridgesVisualizer.assignmentTypes = [];
+BridgesVisualizer.tooltipEnabled = true;
 
 // BridgesVisualizer.textMouseover = function(el) {
 //   var textElm = d3.select(el).select(".nodeLabel");
@@ -194,7 +200,11 @@ var div = d3.select("body").append("div")
     .style("opacity", 0);
 
 BridgesVisualizer.textMouseover = function(d,i) {
-    // console.log(visType);
+
+    if(!BridgesVisualizer.tooltipEnabled) return;
+
+    var visType = BridgesVisualizer.assignmentTypes[$(this).closest("div").attr("id").substr(3)];
+    console.log(visType);
     var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
     if(d3.select(this).select("rect") && visType != "tree")
         d3.select(this).select("rect").style("stroke", "yellow").style("stroke-width", 0);
@@ -241,6 +251,9 @@ BridgesVisualizer.textMouseover = function(d,i) {
 };
 
 BridgesVisualizer.textMouseout = function(d) {
+
+    if(!BridgesVisualizer.tooltipEnabled) return;
+
     if(d3.select(this).select("rect"))
         d3.select(this).select("rect").style("stroke", "gray").style("stroke-width", 2);
 
@@ -297,42 +310,45 @@ for (var key in data) {
     var ele = document.getElementById("vis" + key),
         width = ele.clientWidth - 15,
         height = ele.clientHeight + 15;
+    BridgesVisualizer.assignmentTypes.push(data[key]['visType']);
 
-    if (d3.bst) {
+    console.log(data[key]);
+
+    if (data[key]['visType'] == "tree" && d3.bst) {
         bst = d3.bst(d3, "#vis" + key, width, height);
         // tempAddChildNode(data[key]);
         bst.make(data[key]);
     }
-    else if(d3.dllist){
+    else if(data[key]['visType'] == "dllist" && d3.dllist){
         var sortedNodes = sortDoublyListByLinks(data[key]);
         console.log(sortedNodes);
         d3.dllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
-    else if(d3.cdllist){
+    else if(data[key]['visType'] == "cdllist" && d3.cdllist){
         var sortedNodes = sortListByLinks(data[key]);
         d3.cdllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
-    else if(d3.sllist){
+    else if(data[key]['visType'] == "llist" && d3.sllist){
         var sortedNodes = sortListByLinks(data[key]);
         d3.sllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
-    else if(d3.csllist){
+    else if(data[key]['visType'] == "csllist" && d3.csllist){
         var sortedNodes = sortListByLinks(data[key]);
         d3.csllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
     }
-    else if (d3.queue) {
+    else if (data[key]['visType'] == "queue" && d3.queue) {
         d3.queue(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
     }
-    else if (d3.array) {
+    else if (data[key]['visType'] == "Alist" && d3.array) {
           d3.array(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
     }
-    else if (d3.array2d) {
+    else if (data[key]['visType'] == "Array2D" && d3.array2d) {
           d3.array2d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
     }
-    else if (d3.array3d) {
+    else if (data[key]['visType'] == "Array3D" && d3.array3d) {
           d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
     }
-    else if (d3.graph) {
+    else if (data[key]['visType'] == "nodelink" && d3.graph) {
         d3.graph(d3, "#vis" + key, width, height, data[key]);
     }
     else {
@@ -623,14 +639,14 @@ function saveVisStatesAsCookies(){
           document.cookie = cookieName+"="+cookieValue+"; "+expires;
       }
       var today = new Date().toLocaleTimeString()+" - "+new Date().toLocaleDateString();
-      //  alertMessage("Scale and translation saved!", "success");
+
     } catch(err){
       console.log(err);
     }
 }
 
 // Save cookies when scale and translation are updated
-//  only updates zoom after scrolling has stopped
+// only updates zoom after scrolling has stopped
 try{
     var wheeling = null;
     $("svg").mouseup(saveVisStatesAsCookies);
@@ -645,12 +661,20 @@ try{
     console.log(err);
 }
 
-// if(visType == "tree"){
-  $("#assignmentToggle").click(function(){
-    if(d3.selectAll(".nodeLabel").style("display") == "none" || d3.selectAll(".nodeLabel").style("opacity") == "0"){
-        d3.selectAll(".nodeLabel").style("display","block").style("opacity","1");
-    }else {
-        d3.selectAll(".nodeLabel").style("display","none").style("opacity","0");
+//toggle, show and hide all labels ".nodeLabel"
+$("body").on("keydown", function(event) {
+    console.log(event.which);
+    if(event.which == "76"){
+        if(d3.selectAll(".nodeLabel").style("display") == "none" || d3.selectAll(".nodeLabel").style("opacity") == "0"){
+            d3.selectAll(".nodeLabel").style("display","block").style("opacity","1");
+            BridgesVisualizer.tooltipEnabled = false;
+        }else {
+            d3.selectAll(".nodeLabel").style("display","none").style("opacity","0");
+            BridgesVisualizer.tooltipEnabled = true;
+        }
     }
-  });
-// }
+});
+
+$("body").dblclick(function(){
+    $(".tooltip").mouseout();
+});

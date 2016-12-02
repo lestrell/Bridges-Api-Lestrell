@@ -294,6 +294,12 @@ div.tooltip {
   overflow-y: auto !important;
   word-wrap: break-word;
 
+  /*nocopy highlightable*/
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;
+
 }
 
 /*#tooltipclosebutton{
@@ -336,7 +342,7 @@ div.tooltip:empty {
    pointer-events: none;
 }
 
-.link{
+/*.link{
   stroke: #999;
   stroke-opacity: .6;
 }
@@ -344,12 +350,12 @@ div.tooltip:empty {
 #curve-line {
   stroke: #999;
   fill: none;
-}
+}*/
 
 
-/*div.tooltip p {
+/*div.tooltip {
   pointer-events: none;
   background-color: red;
   width: auto;
   display:inline-block;
-}*/
+}

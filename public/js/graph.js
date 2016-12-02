@@ -212,6 +212,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
                   dy = d.target.y - d.source.y,
                   dr = Math.sqrt(dx * dx + dy * dy);
 
+              //center labels in links
               d3.select("#linklabel"+i).attr("x", dr/2);
 
               return "M" +
@@ -222,7 +223,34 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
                   d.target.y;
           });
 
-      link.moveToBack();
+          //http://stackoverflow.com/questions/34142010/show-d3-link-text-right-side-up
+          //show-d3-link-text-right-side-up
+          linktext.attr('transform', function (d) {
+              // Checks just in case, especially useful at the start of the sim
+              if (!(isVector(d.source) && isVector(d.target))) {
+                  return '';
+              }
+
+              // Get the geometric center of the text element
+              var box = this.getBBox();
+              var center = {
+                  x: box.x + box.width/2,
+                  y: box.y + box.height/2
+              };
+
+              // Get the tangent vector
+              var delta = {
+                  x: d.target.x - d.source.x,
+                  y: d.target.y - d.source.y
+              };
+
+              // Rotate about the center
+              return 'rotate('
+                  + ((-180/Math.PI*xAngle(delta)) || 0)
+                  + (' ' + center.x || 0)
+                  + (' ' + center.y || 0)
+                  + ')';
+              });
 
       // linktext.attr("x", function(d,i){
       //     return d3.select("#linkId_"+i).node().getBBox().y;
@@ -272,3 +300,16 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   }
 
 };
+
+
+function xAngle(v) {
+    return Math.atan(v.y/v.x) + (v.x < 0 ? Math.PI : 0);
+}
+
+function isFiniteNumber(x) {
+    return typeof x === 'number' && (Math.abs(x) < Infinity);
+}
+
+function isVector(v) {
+    return isFiniteNumber(v.x) && isFiniteNumber(v.y);
+}
