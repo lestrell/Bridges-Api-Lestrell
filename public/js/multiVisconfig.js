@@ -1,10 +1,3 @@
-//stub
-var visType = "llist";
-
-BridgesVisualizer.parseDElement = function(){
-
-}
-
 String.prototype.replaceAll = function(target, replacement) {
   return this.split(target).join(replacement);
 };
@@ -204,10 +197,10 @@ BridgesVisualizer.textMouseover = function(d,i) {
     if(!BridgesVisualizer.tooltipEnabled) return;
 
     var visType = BridgesVisualizer.assignmentTypes[$(this).closest("div").attr("id").substr(3)];
-    console.log(visType);
-    var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
+    // var offset = (BridgesVisualizer.textOffsets[visType]) ? BridgesVisualizer.textOffsets[visType] : BridgesVisualizer.textOffsets["default"];
+
     if(d3.select(this).select("rect") && visType != "tree")
-        d3.select(this).select("rect").style("stroke", "yellow").style("stroke-width", 0);
+        d3.select(this).select("rect").style("stroke", "#000").style("stroke-width", 5);
 
     if(d3.select(this).select("path")){
             d3.select(this).select("path").transition()
@@ -218,29 +211,27 @@ BridgesVisualizer.textMouseover = function(d,i) {
                 });
 
             if(visType != "tree"){
-              d3.select(this).select("path").style("stroke", "yellow").style("stroke-width", 0);
+              d3.select(this).select("path").style("stroke", "yellow").style("stroke-width", 2);
             }
     };
 
-
-
-    if(d.name.trim().length > 0){
+    if(visType == "Array2D" || visType == "Array3D"){
+        textValueWithLineBreak = "<h4>Node: "+ d3.select(this).select(".index-textview").text() +"</h4></br>" + d.name.replaceAll("\n","</br>");
+    }else if(d.name.trim().length > 0){
         var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br>" + d.name.replaceAll("\n","</br>");
     }else{
         var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br> NULL";
     }
 
-    var opacityValue = 0.9;
 
     div.transition()
         .duration(200)
-        .style("opacity", opacityValue);
+        .style("opacity", 0.9);
     div	.html(textValueWithLineBreak)
-        .style("left", (d3.event.pageX) + offset.x + "px")
-        .style("top", (d3.event.pageY) + offset.y + "px");
+        .style("left", (d3.event.pageX) + "px")
+        .style("top", (d3.event.pageY) + "px");
 
     $(".tooltip").find("h4").css("background-color", BridgesVisualizer.getColor(d.color));
-    // $(".tooltip").find("h4").css("width", $(".tooltip").innerWidth() + 12);
     if($(".tooltip").hasNoScrollBar()){
         $(".tooltip").css("pointer-events","none").css("border-radius","8px");
     }else{
@@ -251,6 +242,7 @@ BridgesVisualizer.textMouseover = function(d,i) {
 };
 
 BridgesVisualizer.textMouseout = function(d) {
+    var visType = BridgesVisualizer.assignmentTypes[$(this).closest("div").attr("id").substr(3)];
 
     if(!BridgesVisualizer.tooltipEnabled) return;
 
@@ -270,16 +262,10 @@ BridgesVisualizer.textMouseout = function(d) {
                 }
     }
 
-
     if($(".tooltip").css("pointer-events") == "none"){
         $(".tooltip").html('');
         $(".tooltip").css("opacity","0").css("pointer-events","none");
     }
-
-    // div.transition()
-    //     .duration(500)
-    //     .style("opacity", 0);
-    // changePointerEventOff();
 };
 
 $(".tooltip").mouseout(function(){

@@ -135,11 +135,13 @@ block footerjs
     - else
         script.
             var error = !{JSON.stringify(data)};
-            $("#vis0")
-                .html(error.error)
-                .css('color', '#eb6864')
-                .css('font-size', '24px')
-                .css('padding', '50px')
+            if(error.error){
+              $("#vis0")
+                  .html(error.error)
+                  .css('color', '#eb6864')
+                  .css('font-size', '24px')
+                  .css('padding', '50px');
+            }            
     //- script(src = '/js/lib/d3tip.js')
     script(src = '/js/multiVisconfig.js')
     //- script(scr = "http://d3js.org/d3.v3.min.js")

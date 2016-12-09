@@ -58,14 +58,18 @@
 
 .vis{
     width:70%;
-    /*overflow: auto;/*hide the scrollbar if not needed, chrome and ie tested*/*/
+    /*overflow: auto;/*hide the scrollbar if not needed, chrome and ie tested*/
     overflow: hidden;
     float:left;
+    padding: 0px;
 }
 
 .svg {
+    width:100%;
     height: inherit;
+    cursor: default !important;
 }
+
 
 #optionContainer{
     max-width:28%;
@@ -239,9 +243,7 @@ td.right {
     left: 40%;
 }
 
-svg{
-  cursor: default !important;
-}
+
 
 text {
     pointer-events: none;
@@ -335,6 +337,12 @@ div.tooltip h4{
   margin: -12px 0px -12px -12px;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
+  /*Added to improve readability*/
+  text-shadow:
+   -1px -1px 0 rgba(255,255,255,0.5),
+    1px -1px 0 rgba(255,255,255,0.5),
+    -1px 1px 0 rgba(255,255,255,0.5),
+     1px 1px 0 rgba(255,255,255,0.5);
 }
 
 div.tooltip:empty {
