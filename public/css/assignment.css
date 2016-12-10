@@ -366,4 +366,17 @@ div.tooltip:empty {
   background-color: red;
   width: auto;
   display:inline-block;
+}*/
+#savePosition{
+  display: none;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+path.textpath {
+    fill: none;
+    stroke: none;
 }

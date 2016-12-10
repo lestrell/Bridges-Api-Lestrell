@@ -8,6 +8,14 @@ String.prototype.replaceAll = function(target, replacement) {
     }
 })(jQuery);
 
+
+var ticksPerRender = 2000;
+BridgesVisualizer.getTicksPerRender = function(){
+    return ticksPerRender;
+}
+BridgesVisualizer.setTicksPerRender = function(data){
+    ticksPerRender = data;
+}
 // Bridges visualizer object to remove vis methods from the global scope
 BridgesVisualizer.strokeWidthRange = d3.scale.linear().domain([1,10]).range([1,15]).clamp(true);
 
@@ -335,6 +343,8 @@ for (var key in data) {
           d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
     }
     else if (data[key]['visType'] == "nodelink" && d3.graph) {
+        BridgesVisualizer.setTicksPerRender(data[key].nodes.length);
+        $("#savePosition").show();
         d3.graph(d3, "#vis" + key, width, height, data[key]);
     }
     else {
