@@ -51,7 +51,12 @@ exports.viewByAssignmentNumber = function(req, res) {
               assignmentNumber: assignmentNumber,
               subAssignment: "00",
               shared: true
-          })
+          }, {
+              title: 1,
+              assignmentNumber: 1,
+              email:1,
+              "data.visual":1
+           })
           .exec(function(err, assignmentResult) {
 
               if (err) return next(err)
@@ -95,6 +100,9 @@ exports.viewByAssignmentNumber = function(req, res) {
                       // assignmentResult[assignmentResultItem]['thumbnail'] = assignmentResult[assignmentResultItem]['vistype'];
                   }
 
+                  console.log("assignmentResult: " + assignmentResult);
+
+
                   return res.render('assignments/gallery', {
                       "title": "Assignment gallery",
                       "user":req.user,
@@ -126,13 +134,15 @@ exports.viewByUserName = function(req, res) {
 
                   Assignment
                       .find({
-                          // assignmentNumber: assignmentNumber,
-                          // subAssignment: "00",
                           email:user.email,
                           shared:true
+                      },{
+                        title: 1,
+                        assignmentNumber: 1,
+                        "data.visual":1
                       })
                       .exec(function(err, assignmentResult) {
-                          console.log("assignmentResult: " + assignmentResult);
+                          // console.log("assignmentResult: " + assignmentResult);
 
                           if (err) return next(err)
                           if (!assignmentResult) return next("could not find " +
@@ -151,7 +161,13 @@ exports.viewByUserName = function(req, res) {
                               return res.redirect('/user/'+req.user.username);
                           }
 
-                          // console.log("assignmentResult180: " + JSON.stringify(assignmentResult));
+
+                          for(var i = 0; i < assignmentResult.length; i++) {
+                              // add new resource info
+                              assignmentResult[i]['vistype'] = visTypes.getVisType(assignmentResult[i].data[0].visual);
+                          }
+                          console.log("assignmentResult: " + assignmentResult);
+
 
                           return res.render('assignments/publicUserGallery', {
                               "title": "Assignment gallery",

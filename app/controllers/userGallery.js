@@ -10,7 +10,7 @@ exports.view = function(req, res, next) {
       }, {
           assignmentID: 1,
           title: 1,
-          description: 1,
+          // description: 1,
           assignmentNumber: 1,
           "data.visual": 1,
           vistype: 1,
