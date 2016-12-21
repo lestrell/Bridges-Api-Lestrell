@@ -80,10 +80,12 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
       .attr("refY", 0)
       .attr("markerUnits", "userSpaceOnUse")
       .style("fill", function (d) {
-          return BridgesVisualizer.getColor(d.color) || "black";
+          if(d)return BridgesVisualizer.getColor(d.color) || "black";
+          else return "black";
       })
       .style("opacity", function(d) {
-          return d.opacity || 1;
+          if(d) d.opacity || 1;
+          else return 1;
       })
       .attr("markerWidth", 10)
       .attr("markerHeight", 10)
@@ -164,12 +166,19 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
 
 
   function start() {
+      if(nodes.length < 200){
+        BridgesVisualizer.setTicksPerRender(1);
+      }
       requestAnimationFrame(function render() {
         for (var i = 0; i < BridgesVisualizer.getTicksPerRender(); i++) {
           force.tick();
          }
 
-         BridgesVisualizer.setTicksPerRender(5);
+         if(nodes.length < 200){
+           BridgesVisualizer.setTicksPerRender(1);
+         }else{
+           BridgesVisualizer.setTicksPerRender(10);
+         }
 
          node
             .attr("transform", function(d, i) {
@@ -210,6 +219,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   }
 
 
+  //http://stackoverflow.com/questions/18316056/d3-js-force-layout-edge-label-placement-rotation
   function arcPath(leftHand, d) {
      var start = leftHand ? d.source : d.target,
          end = leftHand ? d.target : d.source,

@@ -327,6 +327,8 @@ exports.show = function (req, res, next) {
             allAssigns[i] = data;
         }
 
+        // console.log("     "+JSON.stringify(allAssigns['0'].nodes));
+
         return res.render ('assignments/assignmentMulti', {
             "title":"Assignment " + assignmentNumber,
             "assignmentTitle": assignments[0].title,

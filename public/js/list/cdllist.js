@@ -11,9 +11,10 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     if(transformObject){
          finalTranslate = [transformObject.translatex,transformObject.translatey];
          finalScale = transformObject.scale;
-    }else{
-      console.log("Loaded from default!");
     }
+    // else{
+    //   console.log("Loaded from default!");
+    // }
 
     // var spacing = 5;        // spacing between elements
     var spacing = 115;
@@ -82,7 +83,9 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
           return i;
         })
         .attr("y", 115)
-        .attr("x", defaultSizeW / 2 - 5);
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        });
 
     nodes
         .append("line")
@@ -120,10 +123,12 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-            return d.name.substr(0,5)+"...";
+            return BridgesVisualizer.getShortText(d.name);
         })
         .attr("fill", "black")
-        .attr("x", 40)
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        })
         .attr("y", defaultSizeH / 2)
         .attr("dy", ".35em");
 
@@ -539,14 +544,14 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
 
 
     nodes
-      .append("rect")
-      .attr("height", function(d) {
-          return defaultSizeH;
-      })
-      .attr("width", function(d) {
-          return defaultSizeW + 52.5;
-      })
-      .style("opacity","0");
+        .append("rect")
+        .attr("height", function(d) {
+            return defaultSizeH;
+        })
+        .attr("width", function(d) {
+            return defaultSizeW + 52.5;
+        })
+        .style("opacity","0");
 
     //// zoom function
     function zoomHandler() {

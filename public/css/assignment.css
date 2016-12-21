@@ -380,3 +380,7 @@ path.textpath {
     fill: none;
     stroke: none;
 }
+
+input#assignments.form-control{
+    width: 110% !important;
+}

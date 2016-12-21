@@ -23,14 +23,15 @@ block content
               //- - console.log(assignmentNumber)
               div.gallery_assignment_container
                   div.gallery_assignment_div_public
-                      a(href="/assignments/"+assignmentNumber+"/"+assignments[x].username)
+                      a(href="/assignments/"+assignments[x].assignmentNumber+"/"+user.username)
                           if(assignments[x].vistype == "nodelink")
                               img.visimg(src='/img/graph.png' title=assignments[x].vistype)
                           else if(assignments[x].vistype == "Alist")
                               img.visimg(src='/img/array.png' title=assignments[x].vistype)
                           else
                               img.visimg(src='/img/'+assignments[x].vistype+'.png' title=assignments[x].vistype)
-                  h4(style="text-align: center") #{assignments[x].username}
+                  h4(style="text-align: center") #{assignments[x].title}
+                  h6(style="text-align: center") #{assignments[x].assignmentNumber}
                   h6(style="text-align: center") #{assignments[x].data[0].visual}
                   
 block footerjs
@@ -42,3 +43,4 @@ block footerjs
               breakIfImageError = true;
             }
         });
+    

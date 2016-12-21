@@ -20,9 +20,10 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
     if(transformObject){
          finalTranslate = [transformObject.translatex,transformObject.translatey];
          finalScale = transformObject.scale;
-    }else{
-      console.log("Loaded from default!");
     }
+    // else{
+    //   console.log("Loaded from default!");
+    // }
 
 
     // error when zooming directly after pan on OSX
@@ -88,7 +89,9 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
           return i;
         })
         .attr("y", 115)
-        .attr("x", defaultSizeW / 2 - 5);
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        });
 
     nodes
         .append("line")
@@ -108,7 +111,7 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
         .style("stroke", "black")
         .attr("stroke-width",2);
 
-    // Show full array label above each element
+    // Show full label above each element
     nodes
         .append("text")
         .attr("class","nodeLabel")
@@ -125,10 +128,12 @@ d3.sllist = function(d3, canvasID, w, h, data, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-            return d.name.substr(0,5)+"...";
+            return BridgesVisualizer.getShortText(d.name);
         })
         .attr("fill", "black")
-        .attr("x", 40)
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        })
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 

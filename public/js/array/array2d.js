@@ -21,9 +21,10 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     if(transformObject){
          finalTranslate = [transformObject.translatex,transformObject.translatey];
          finalScale = transformObject.scale;
-    }else{
-      console.log("Loaded from default!");
     }
+    // else{
+    //   console.log("Loaded from default!");
+    // }
 
     // error when zooming directly after pan on OSX
     // https://github.com/mbostock/d3/issues/2205
@@ -84,7 +85,9 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
           return "("+levelCount+", "+(i % elementsPerRow)+")";
         })
         .attr("y", 115)
-        .attr("x", defaultSize / 2 - 5);
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSize);
+        });
 
     // Show full array label above each element
     nodes
@@ -103,10 +106,12 @@ d3.array2d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-            return d.name.substr(0,3)+"...";
+            return BridgesVisualizer.getShortText(d.name);
         })
         .attr("fill", "black")
-        .attr("x", 10)
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSize);
+        })
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 

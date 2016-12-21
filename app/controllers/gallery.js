@@ -4,22 +4,22 @@ var mongoose = require('mongoose'),
     Assignment = mongoose.model('Assignment')
     visTypes = require('./visTypes.js');
 
-exports.view = function(req, res) {
-    var assignmentNumber
+exports.viewByAssignmentNumber = function(req, res) {
+    var assignmentNumber;
 
-    var getUsername = function(users, usernames, cb) {
-        if (users.length == 0) return cb(usernames)
-        var user = users.pop()
-        User
-            .findOne({
-                "email": user
-            })
-            .exec(function(err, user) {
-                if (err) return null;
-                if (user) usernames.push(user.username)
-                getUsername(users, usernames, cb)
-            })
-    }
+    // var getUsername = function(users, usernames, cb) {
+    //     if (users.length == 0) return cb(usernames)
+    //     var user = users.pop()
+    //     User
+    //         .findOne({
+    //             "email": user
+    //         })
+    //         .exec(function(err, user) {
+    //             if (err) return null;
+    //             if (user) usernames.push(user.username)
+    //             getUsername(users, usernames, cb)
+    //         })
+    // }
 
     var getAssignmentsEmailAndUsernameMap = function(users, usernamesmap, cb) {
         if (users.length == 0) return cb(usernamesmap)
@@ -104,4 +104,67 @@ exports.view = function(req, res) {
               })
           })
         }
+}
+
+//assignmentNumber is and is treated as the user's username in this method
+exports.viewByUserName = function(req, res) {
+
+    if (!req.params.assignmentNumber) {
+      return next("No assignment number given");
+
+
+    } else {
+
+      var assignmentNumber = req.params.assignmentNumber;
+      // var user;
+
+      User
+          .findOne({username:assignmentNumber})
+          .exec(function (err, user) {
+              if (err) return next(err)
+              if (user) {
+
+                  Assignment
+                      .find({
+                          // assignmentNumber: assignmentNumber,
+                          // subAssignment: "00",
+                          email:user.email,
+                          shared:true
+                      })
+                      .exec(function(err, assignmentResult) {
+                          console.log("assignmentResult: " + assignmentResult);
+
+                          if (err) return next(err)
+                          if (!assignmentResult) return next("could not find " +
+                              "assignment " + req.params.assignmentNumber)
+
+                          if(assignmentResult.length == 0) {
+                              return res.render('assignments/gallery', {
+                                  "title": "Assignment gallery",
+                                  "user":req.user,
+                                  "assignments": "",
+                                  "assignmentNumber":-1
+                              })
+                          }
+
+                          if(assignmentResult.length <= 0) {
+                              return res.redirect('/user/'+req.user.username);
+                          }
+
+                          // console.log("assignmentResult180: " + JSON.stringify(assignmentResult));
+
+                          return res.render('assignments/publicUserGallery', {
+                              "title": "Assignment gallery",
+                              "user":user,
+                              "assignmentNumber":req.params.assignmentNumber,
+                              "assignments":assignmentResult
+                          })
+
+                      })
+
+              }
+          })
+      // console.log("assignmentNumber: " + assignmentNumber);
+
+    }
 }

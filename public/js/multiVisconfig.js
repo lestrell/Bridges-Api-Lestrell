@@ -2,6 +2,10 @@ String.prototype.replaceAll = function(target, replacement) {
   return this.split(target).join(replacement);
 };
 
+Array.prototype.insert = function (index, item) {
+  this.splice(index, 0, item);
+};
+
 (function($) {
     $.fn.hasNoScrollBar = function() {
         return !(this.get(0) ? this.get(0).scrollHeight > this.innerHeight() : false);
@@ -15,6 +19,18 @@ BridgesVisualizer.getTicksPerRender = function(){
 }
 BridgesVisualizer.setTicksPerRender = function(data){
     ticksPerRender = data;
+}
+
+BridgesVisualizer.centerTextHorizontallyInRect = function(obj, width){
+    return (width - obj.getComputedTextLength()) / 2;
+};
+
+BridgesVisualizer.getShortText = function(text){
+    if(text && text.length > 5){
+      return text.substr(0,3)+"...";
+    }else{
+      return text;
+    }
 }
 // Bridges visualizer object to remove vis methods from the global scope
 BridgesVisualizer.strokeWidthRange = d3.scale.linear().domain([1,10]).range([1,15]).clamp(true);
@@ -223,12 +239,14 @@ BridgesVisualizer.textMouseover = function(d,i) {
             }
     };
 
+    var textValueWithLineBreak = "";
+
     if(visType == "Array2D" || visType == "Array3D"){
         textValueWithLineBreak = "<h4>Node: "+ d3.select(this).select(".index-textview").text() +"</h4></br>" + d.name.replaceAll("\n","</br>");
     }else if(d.name.trim().length > 0){
-        var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br>" + d.name.replaceAll("\n","</br>");
+        textValueWithLineBreak = "<h4>Node: "+i+"</h4></br>" + d.name.replaceAll("\n","</br>");
     }else{
-        var textValueWithLineBreak = "<h4>Node: "+i+"</h4></br> NULL";
+        textValueWithLineBreak = "<h4>Node: "+i+"</h4></br> NULL";
     }
 
 
@@ -298,6 +316,8 @@ var map = map || null;
 if( map )
   map( mapData );
 
+
+// console.log(JSON.stringify(data));
 /* create new assignments  */
 for (var key in data) {
   if (data.hasOwnProperty(key)) {
@@ -306,29 +326,24 @@ for (var key in data) {
         height = ele.clientHeight + 15;
     BridgesVisualizer.assignmentTypes.push(data[key]['visType']);
 
-    console.log(data[key]);
+    // console.log(data[key]);
 
     if (data[key]['visType'] == "tree" && d3.bst) {
         bst = d3.bst(d3, "#vis" + key, width, height);
-        // tempAddChildNode(data[key]);
         bst.make(data[key]);
     }
     else if(data[key]['visType'] == "dllist" && d3.dllist){
-        var sortedNodes = sortDoublyListByLinks(data[key]);
-        console.log(sortedNodes);
-        d3.dllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
+        console.log(data[key]);
+        d3.dllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), data[key].transform);
     }
     else if(data[key]['visType'] == "cdllist" && d3.cdllist){
-        var sortedNodes = sortListByLinks(data[key]);
-        d3.cdllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
+        d3.cdllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), data[key].transform);
     }
     else if(data[key]['visType'] == "llist" && d3.sllist){
-        var sortedNodes = sortListByLinks(data[key]);
-        d3.sllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
+        d3.sllist(d3, "#vis" + key, width, height, sortSinglyListByLinks(data[key]), data[key].transform);
     }
-    else if(data[key]['visType'] == "csllist" && d3.csllist){
-        var sortedNodes = sortListByLinks(data[key]);
-        d3.csllist(d3, "#vis" + key, width, height, sortedNodes, data[key].transform);
+    else if(data[key]['visType'] == "cllist" && d3.csllist){
+        d3.csllist(d3, "#vis" + key, width, height, sortSinglyListByLinks(data[key]), data[key].transform);
     }
     else if (data[key]['visType'] == "queue" && d3.queue) {
         d3.queue(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
@@ -561,8 +576,36 @@ function alertMessage(message, status) {
   },2500);
 }
 
+// function sortDoublyListByLinks(unsortedNodes){
+//    // loop through each link replacing the text with its index from node
+//    unsortedNodes.links.forEach(function (d, i) {
+//      unsortedNodes.links[i].source = unsortedNodes.nodes.indexOf(unsortedNodes.links[i].source);
+//      unsortedNodes.links[i].target = unsortedNodes.nodes.indexOf(unsortedNodes.links[i].target);
+//     //  unsortedNodes.links[i].source['forwardlink'] = tempLinkOne;
+//     //  unsortedNodes.links[i].source['backwardlink'] = tempLinkOne;
+//    });
+//
+//
+//   //now loop through each nodes to make nodes an array of objects
+//   //  rather than an array of strings
+//    unsortedNodes.nodes.forEach(function (d, i) {
+//      unsortedNodes.nodes[i] = d;
+//      console.log(i);
+//     //  unsortedNodes.nodes[i]['forwardlink'] = d;
+//     //  unsortedNodes.nodes[i]['backwardlink'] = d;
+//    });
+//
+//    console.log(unsortedNodes);
+//
+//    return unsortedNodes;
+//
+//
+//
+// }
+
+
 //this methods sorts any Doubly Links linkedlist by links
-function sortDoublyListByLinks(unsortedNodes){
+function sortDoublyListByLinksOriginal(unsortedNodes){
     var getSourceFromTarget = {}, getLinkFromSource = {}, sortedNodes = [], head;
     var links = unsortedNodes.links;
     var nodes = unsortedNodes.nodes;
@@ -588,8 +631,96 @@ function sortDoublyListByLinks(unsortedNodes){
     return sortedNodes;
 }
 
+
+//this methods sorts any Doubly Links linkedlist by links
+function sortDoublyListByLinks(unsortedNodes){
+    var getTargetFromSource = {}, getLinkFromSource = {}, head, sortedNodes = [];
+    var links = unsortedNodes.links;
+    var nodes = unsortedNodes.nodes;
+    // console.log(typeof(nodes));
+
+    // var sortedNodes = new Array(nodes.length);
+    // console.log("nodesLe: " + nodes.length);
+    // sortedNodes[nodes.length] = undefined;
+    // var sortedNodes = new Array(Object.keys(nodes).length-1);
+
+    for(var i = 0; i < links.length; i++){
+        // getTargetFromSource[links[i].source] = links[i].target;//assigning the link source as the key and the target as the value
+        getTargetFromSource[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
+        getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
+    }
+
+    head = 0;
+    for(var i = 0; i < nodes.length; i++){
+        var key = getTargetFromSource[head] + "-" + head;//link from target to source
+        var yek = head + "-" + getTargetFromSource[head];//link from source to target
+        if(getLinkFromSource[key]) {
+          if(sortedNodes[head] != undefined){
+            sortedNodes[head]['backwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
+          }else{
+            nodes[head]['backwardlink'] = getLinkFromSource[key];
+            sortedNodes.insert(head,nodes[head]);
+          }
+        }
+        if(getLinkFromSource[yek]){
+          if(sortedNodes[head] != undefined){
+            sortedNodes[head]['forwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
+          }else{
+            nodes[head]['forwardlink'] = getLinkFromSource[yek];
+            sortedNodes.insert(head,nodes[head]);
+          }
+        }
+
+        // if(nodes[head])sortedNodes.push(nodes[head]);
+        head = getTargetFromSource[head];//getting the next target
+        // if(!head)break;
+    }
+
+    // for(link in links){
+    // head = 0;
+    // for(var i = 0; i < nodes.length; i++){
+    //     if(head < getTargetFromSource[nodes]){
+    //         // if( (nodes[head] != -1) ){
+    //         if( ( !('backwardlink' in nodes[head]) && (!('forwardlink' in nodes[head]))) ){
+    //           nodes[head]['backwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
+    //           sortedNodes.insert(head,nodes[head]);
+    //           nodes[head] = new Object();
+    //         }else if( Object.keys(nodes[head]).length > 0 && !('backwardlink' in nodes[head]) ){
+    //           sortedNodes[head]['backwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
+    //         }
+    //     }
+    //
+    //     if(head > getTargetFromSource[nodes]){
+    //           // if( (nodes[head] != -1) ){
+    //           if( ( !('forwardlink' in nodes[head]) && (!('backwardlink' in nodes[head]))) ){
+    //             nodes[head]['forwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
+    //             sortedNodes.insert(head,nodes[head]);
+    //             nodes[head] = new Object();
+    //           }else if( Object.keys(nodes[head]).length > 0 && !('forwardlink' in nodes[head] )){
+    //             sortedNodes[head]['forwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
+    //           }
+    //     }
+    //
+    //     head = getTargetFromSource[head];//getting the next target
+    //
+    //
+    //     // if(links[i].target in nodes)
+    //     //     head = links[i].target;
+    //     // else if(links[i].source in nodes)
+    //     //     head = links[i].source;
+    //     // // head = links[i].source;
+    //
+    //     console.log("sortedNodesLe: " + sortedNodes.length);
+    //
+    //
+    //     // sortedNodes
+    // }
+
+    return sortedNodes;
+}
+
 //this methods sorts any linkedlist by links
-function sortListByLinks(unsortedNodes){
+function sortSinglyListByLinks(unsortedNodes){
     var getTargetFromSource = {}, getLinkFromSource = {}, sortedNodes = [], head;
     var links = unsortedNodes.links;
     var nodes = unsortedNodes.nodes;
@@ -659,8 +790,8 @@ try{
 
 //toggle, show and hide all labels ".nodeLabel"
 $("body").on("keydown", function(event) {
-    console.log(event.which);
     if(event.which == "76"){
+        $(".tooltip").mouseout();
         if(d3.selectAll(".nodeLabel").style("display") == "none" || d3.selectAll(".nodeLabel").style("opacity") == "0"){
             d3.selectAll(".nodeLabel").style("display","block").style("opacity","1");
             BridgesVisualizer.tooltipEnabled = false;
@@ -671,6 +802,7 @@ $("body").on("keydown", function(event) {
     }
 });
 
+//close tooltip on double click
 $("body").dblclick(function(){
     $(".tooltip").mouseout();
 });

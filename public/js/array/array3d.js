@@ -25,9 +25,10 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
     if(transformObject){
          finalTranslate = [transformObject.translatex,transformObject.translatey];
          finalScale = transformObject.scale;
-    }else{
-      console.log("Loaded from default!");
     }
+    // else{
+    //      console.log("Loaded from default!");
+    // }
 
 
     // error when zooming directly after pan on OSX
@@ -106,7 +107,9 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
           return "("+threeLevel+", "+(i % elementsPerRow)+", "+levelCount+")";
         })
         .attr("y", 115)
-        .attr("x", defaultSize / 4);
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSize);
+        });
 
 
     nodes
@@ -125,10 +128,12 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-          return d.name;
+           return BridgesVisualizer.getShortText(d.name);
         })
         .attr("fill", "black")
-        .attr("x", 10)
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSize);
+        })
         .attr("y", defaultSize / 2)
         .attr("dy", ".35em");
 
@@ -153,6 +158,7 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
                                     +")";
             });
         }
+
     });
 
     var half2d = ( ( (spacing + defaultSize) * elementsPerRow) / 2 ) - marginLeft;
@@ -185,7 +191,6 @@ d3.array3d = function(d3, canvasID, w, h, data, dimensions, transformCloud) {
             .attr("x", (parseFloat(d3.transform(d3.select(this).attr("transform")).translate[0])+half2d) - valueToCenterGridTitle)
             .style("font-size","100px")
             .attr("y", parseInt(d3.select(".first-v").attr("y2")) + 80);
-
     });
 
     //connecting the 2D grid with one horizontal line

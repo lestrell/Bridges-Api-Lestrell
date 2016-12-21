@@ -194,7 +194,15 @@ module.exports = function(app, passport, streamable) {
     var gallery = require('../app/controllers/gallery.js')      // Public gallery
     var userGallery = require('../app/controllers/userGallery.js')  // Private user gallery
 
-    app.get('/assignments/:assignmentNumber', gallery.view, handleError)
+    app.get('/assignments/:assignmentNumber', function(req, res){
+        if(req.params.assignmentNumber && isNaN(req.params.assignmentNumber) ){
+            return gallery.viewByUserName(req, res);
+        }else{
+            return gallery.viewByAssignmentNumber(req, res);
+        }
+    }, handleError)
+    // app.get('/userLucasTest/:assignmentNumber', gallery.viewByUserName, handleError)
+
     app.get('/username/:userNameRes', isLoggedIn, userGallery.view, handleError)
 
     app.post('/users/session',

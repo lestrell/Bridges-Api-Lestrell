@@ -17,9 +17,10 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
     if(transformObject){
          finalTranslate = [transformObject.translatex,transformObject.translatey];
          finalScale = transformObject.scale;
-    }else{
-      console.log("Loaded from default!");
     }
+    // else{
+    //   console.log("Loaded from default!");
+    // }
 
     // var myScale = 0.36;
     // if(w > 1200){ myScale = 0.28;}
@@ -84,7 +85,9 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
           return i;
         })
         .attr("y", 115)
-        .attr("x", defaultSizeW / 2 - 5);
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        });
 
     nodes
         .append("line")
@@ -120,10 +123,12 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         .style("display", "block")
         .style("font-size", 30)
         .text(function(d) {
-            return d.name.substr(0,5)+"...";
+            return BridgesVisualizer.getShortText(d.name);
         })
         .attr("fill", "black")
-        .attr("x", 40)
+        .attr("x", function(){
+            return BridgesVisualizer.centerTextHorizontallyInRect(this, defaultSizeW);
+        })
         .attr("y", defaultSizeH / 2)
         .attr("dy", ".35em");
 
@@ -165,20 +170,18 @@ d3.dllist = function(d3, canvasID, w, h, data, transformCloud) {
         })
         .attr("stroke-width",5)
         .attr("marker-end",function(d,i){
-          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            return "url('#Circle')";
-          }else{
-            return "url('#Triangle')";
-          }
-
+            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+              return "url('#Circle')";
+            }else{
+              return "url('#Triangle')";
+            }
         })
         .attr("marker-start",function(d,i){
-          if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
-            // return "url('#Triangle')";
-          }else{
-            return "url('#Circle')";
-          }
-
+            if(i % elementsPerRow == (elementsPerRow-1) && (i != Object.keys(data).length-1) ){
+              // return "url('#Triangle')";
+            }else{
+              return "url('#Circle')";
+            }
         });
 
 
