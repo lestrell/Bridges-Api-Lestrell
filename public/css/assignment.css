@@ -382,5 +382,20 @@ path.textpath {
 }
 
 input#assignments.form-control{
-    width: 110% !important;
+    width: 120% !important;
+}
+
+.form-horizontal .form-group {
+    margin-right: -3px !important;
+}
+
+.popover-footer {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  background-color: #F7F7F7;
+  border-bottom: 1px solid #EBEBEB;
+  border-radius: 5px 5px 0 0;
 }

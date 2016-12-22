@@ -327,6 +327,8 @@ exports.show = function (req, res, next) {
             allAssigns[i] = data;
         }
 
+        console.log("nodes     "+JSON.stringify(allAssigns['0'].nodes));
+        console.log("links     "+JSON.stringify(allAssigns['0'].links));
         // console.log("     "+JSON.stringify(allAssigns['0'].nodes));
 
         return res.render ('assignments/assignmentMulti', {
@@ -462,5 +464,5 @@ exports.deleteAssignment = function (req, res) {
             console.log("Deleted assignment: " + req.params.assignmentNumber, "for user", req.user.email);
         });
 
-    return res.redirect("username/");
+    return res.send("OK");
 };

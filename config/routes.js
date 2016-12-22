@@ -183,6 +183,7 @@ module.exports = function(app, passport, streamable) {
     app.post('/assignments/updateTransforms/:assignmentNumber', isLoggedIn, assignments.updateTransforms);
 
     // delete the assignment specified for the current user
+    //I see the simplicity in the naming of this route, but it can be named more explicitly.
     app.delete('/assignments/:assignmentNumber', isLoggedIn, assignments.deleteAssignment);
 
 

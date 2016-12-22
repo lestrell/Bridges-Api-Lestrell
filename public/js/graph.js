@@ -26,6 +26,8 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
      if(weights.indexOf(links[i].weight) == -1){weights.push(links[i].weight);}
   }
 
+  console.log(weights);
+
   var force = d3.layout.force()
       .charge([-250])
       .linkDistance([50])
@@ -52,7 +54,7 @@ d3.graph = function(d3, id, W, H, data, transformCloud) {
   // https://github.com/mbostock/d3/issues/2205
    var zoom = d3.behavior.zoom()
           .scaleExtent([0.1,5])
-          .on("zoom", zoomHandler)
+          .on("zoom", zoomHandler);
           // .scale(finalScale)
           // .translate(finalTranslate);
       allZoom.push(zoom);

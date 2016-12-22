@@ -317,6 +317,8 @@ if( map )
   map( mapData );
 
 
+console.log(user);
+console.log(data);
 // console.log(JSON.stringify(data));
 /* create new assignments  */
 for (var key in data) {
@@ -575,6 +577,81 @@ function alertMessage(message, status) {
      $("#updateStatus").hide();
   },2500);
 }
+
+function deleteAssignment(){
+  $.ajax({
+      url: "/assignments/"+assignmentNumber,
+      type: "delete",
+      data: {}
+  }).done(function(status) {
+      if(status == 'OK'){
+          alertMessage("Scale and translation saved!<br>Taking you back to home...", "success");
+          window.location.href="/username/"+user.username;
+      } else {
+          alertMessage("Unsuccessful. Try logging in!", "danger");
+      }
+  });
+}
+
+$('[data-toggle="popover"]').popover({
+    trigger : 'click',
+    placement : 'top',
+    html: 'true',
+    content : '',
+    template: '<div class="popover"><div class="arrow"></div>'+
+              '<h3 class="popover-title"></h3>'+
+              '<div class="popover-footer"><button onclick="popoverSubmit()" type="button" class="btn btn-primary popover-submit">'+
+              '<i class="glyphicon glyphicon-ok"></i></button>&nbsp;'+
+              '<button type="button" onclick="popoverCancel()" class="btn btn-default popover-cancel">'+
+              '<i class="glyphicon glyphicon-remove"></i></button></div></div>'
+  });
+
+  $('#submitDelete').click(function(){
+      console.log($(".popover"));
+      console.log($(".popover").css("opacity"));
+      if($(".popover").css("opacity") == undefined){
+          $('#submitDelete').click();
+      }
+  });
+  //
+  // $('[data-toggle="popover"]').click(function(){
+  //
+  //     console.log("click");
+  //   $(this).show();
+  // });
+
+  function popoverSubmit(){
+    console.log("click");
+    deleteAssignment();
+     $(".popover").popover('hide');
+  }
+
+  function popoverCancel(){
+    console.log("click");
+     $(".popover").popover('hide');
+  }
+  // .on('shown', function() {
+  //     //hide any visible comment-popover
+  //     $('[data-toggle="popover"]').not(this).popover('hide');
+  //     var $this = $(this);
+  //
+  //     //close on cancel
+  //     document.getElementById('popover-cancel').delegate("click", "i", function() {
+  //         console.log("click");
+  //         $this.popover('hide');
+  //     });
+  //     //update link text on submit
+  //     $('.popover-submit').delegate("click", "i", function() {
+  //         console.log("click");
+  //         deleteAssignment();
+  //         $this.popover('hide');
+  //     });
+  //
+  // });
+
+
+
+
 
 // function sortDoublyListByLinks(unsortedNodes){
 //    // loop through each link replacing the text with its index from node

@@ -16,12 +16,12 @@ block content
 
                 div(style="float:left; margin-left:50px")
                     //a(href="/assignments/"+assignments[0].assignmentID+"/"+usernames)
-                    h1(style="text-align: left") #{usernames}'s Gallery
+                    h1(style="text-align: left") #{username}'s Gallery
 
     div(style='margin:5%')
         - for (var x = 0; x < assignments.length; x++)
             div(class='gallery_assignment_container')
-                a(href='/assignments/'+assignments[x].assignmentNumber+'/'+usernames)
+                a(href='/assignments/'+assignments[x].assignmentNumber+'/'+username)
                   - if (assignments[x].shared == false)
                           div(class='gallery_assignment_div_private')
                               if(assignments[x].vistype == "nodelink")

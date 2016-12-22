@@ -17,6 +17,7 @@ block css
 block content
     include ../includes/header.jade
     div#updateStatus
+    div#confirmDialog
     div#assignmentCanvas(overflow='auto')
         if (owner)
             #optionContainer.optionContainer
@@ -46,17 +47,9 @@ block content
 
                 div#assignmentDescription #{assignmentDescription}
 
-                form(action="/assignments/"+assignmentNumber, method='post')
-                    div(style="margin-top:20px;")
-                        input(type="hidden", name="_csrf", value=csrftoken)
-                        input.form-control(
-                                type="hidden",
-                                name="_method",
-                                value="DELETE")
-
-                        input#submit.btn.btn-danger.center-block(
-                                type='submit',
-                                value="Delete Assignment")
+                //- form(action="/assignments/"+assignmentNumber, method='post')
+                div(style="margin-top:20px;")
+                  button#submitDelete.btn.btn-danger.center-block(data-toggle="popover", title="Are you sure that you want to permanently delete this assignment?") Delete Assignment
 
         else if (assignmentDescription.length > 0)
             #optionContainer.optionContainer
@@ -92,8 +85,7 @@ block content
 block footerjs
 
     script(src = '/components/d3/d3.min.js')
-
-    script(src = '/components/jquery/dist/jquery.min.js')
+    //- script(src = '/components/jquery/dist/jquery.min.js')
 
     script.
         var owner = '#{owner}'
@@ -111,6 +103,7 @@ block footerjs
 
     script.
         var data = !{JSON.stringify(data)};
+        var user = !{JSON.stringify(user)};
         var assignmentNumber = !{JSON.stringify(assignmentNumber)};
 
         var mapData =  !{JSON.stringify(mapData)};
@@ -148,7 +141,7 @@ block footerjs
     script.
         // Asynchronously update the assignment visibility
         function toggleShare (selected) {
-            var assignmentNumber = !{JSON.stringify(assignmentNumber)}
+            //- var assignmentNumber = !{JSON.stringify(assignmentNumber)}
             $.ajax({
                 url: "/assignments/"+assignmentNumber+"/share/"+selected,
                 type: "post"
