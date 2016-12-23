@@ -336,16 +336,16 @@ for (var key in data) {
     }
     else if(data[key]['visType'] == "dllist" && d3.dllist){
         console.log(data[key]);
-        d3.dllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), data[key].transform);
+        d3.dllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "doubly"), data[key].transform);
     }
     else if(data[key]['visType'] == "cdllist" && d3.cdllist){
-        d3.cdllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), data[key].transform);
+        d3.cdllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "cdoubly"), data[key].transform);
     }
     else if(data[key]['visType'] == "llist" && d3.sllist){
-        d3.sllist(d3, "#vis" + key, width, height, sortSinglyListByLinks(data[key]), data[key].transform);
+        d3.sllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "singly"), data[key].transform);
     }
     else if(data[key]['visType'] == "cllist" && d3.csllist){
-        d3.csllist(d3, "#vis" + key, width, height, sortSinglyListByLinks(data[key]), data[key].transform);
+        d3.csllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "singly"), data[key].transform);
     }
     else if (data[key]['visType'] == "queue" && d3.queue) {
         d3.queue(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
@@ -630,196 +630,84 @@ $('[data-toggle="popover"]').popover({
     console.log("click");
      $(".popover").popover('hide');
   }
-  // .on('shown', function() {
-  //     //hide any visible comment-popover
-  //     $('[data-toggle="popover"]').not(this).popover('hide');
-  //     var $this = $(this);
-  //
-  //     //close on cancel
-  //     document.getElementById('popover-cancel').delegate("click", "i", function() {
-  //         console.log("click");
-  //         $this.popover('hide');
-  //     });
-  //     //update link text on submit
-  //     $('.popover-submit').delegate("click", "i", function() {
-  //         console.log("click");
-  //         deleteAssignment();
-  //         $this.popover('hide');
-  //     });
-  //
-  // });
 
+//this methods sorts any Doubly Links linkedlist by links and add the links inside the parent nodes
+//orignally the first node has be to be the head in order to work properly
+//but there is no need for that. Also, the time complexity is O(n)
+function sortNodesByLinks(unsortedNodes, listType){
+    var links = unsortedNodes.links, nodes = unsortedNodes.nodes, sortedNodes = [];
+    if(listType == "singly"){
+        for(var i = 0; i < links.length; i++){
+            if(!(links[i].source in sortedNodes)){
+                if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
+                if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
+            }
+        }
+    }else if(listType == "doubly"){
+        for(var i = 0; i < links.length; i++){
+            if(!(links[i].source in sortedNodes)){
+                if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
+            }
 
+            if(links[i].source < links[i].target){
+                if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
+            }else if(links[i].source > links[i].target){
+                if(sortedNodes[links[i].source]) sortedNodes[links[i].target]['backwardlink'] = links[i];
+            }
 
-
-
-// function sortDoublyListByLinks(unsortedNodes){
-//    // loop through each link replacing the text with its index from node
-//    unsortedNodes.links.forEach(function (d, i) {
-//      unsortedNodes.links[i].source = unsortedNodes.nodes.indexOf(unsortedNodes.links[i].source);
-//      unsortedNodes.links[i].target = unsortedNodes.nodes.indexOf(unsortedNodes.links[i].target);
-//     //  unsortedNodes.links[i].source['forwardlink'] = tempLinkOne;
-//     //  unsortedNodes.links[i].source['backwardlink'] = tempLinkOne;
-//    });
-//
-//
-//   //now loop through each nodes to make nodes an array of objects
-//   //  rather than an array of strings
-//    unsortedNodes.nodes.forEach(function (d, i) {
-//      unsortedNodes.nodes[i] = d;
-//      console.log(i);
-//     //  unsortedNodes.nodes[i]['forwardlink'] = d;
-//     //  unsortedNodes.nodes[i]['backwardlink'] = d;
-//    });
-//
-//    console.log(unsortedNodes);
-//
-//    return unsortedNodes;
-//
-//
-//
-// }
-
-
-//this methods sorts any Doubly Links linkedlist by links
-function sortDoublyListByLinksOriginal(unsortedNodes){
-    var getSourceFromTarget = {}, getLinkFromSource = {}, sortedNodes = [], head;
-    var links = unsortedNodes.links;
-    var nodes = unsortedNodes.nodes;
-
-    for(var i = 0; i < links.length; i++){
-        getSourceFromTarget[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
-        getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
+        }
+    }else if(listType == "cdoubly"){
+        console.log("as");
+        return sortDoublyLinkedCircularList(unsortedNodes);
     }
 
-    // head = Object.keys(nodes).length-1;
-    head = 0;
-    // for(var h in nodes){//looping through the length of the nodes
-    for(var i = 0; i < nodes.length; i++){
-        var key = head + "-" + getSourceFromTarget[head];//link from source to target
-        var yek = getSourceFromTarget[head] + "-" + head;//link from target to source
-        if(getLinkFromSource[key]) nodes[head]['forwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
-        if(getLinkFromSource[yek]) nodes[head]['backwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
-        if(nodes[head])sortedNodes.push(nodes[head]);
-        head = getSourceFromTarget[head];//getting the next target
-        // if(!head)break;
-    }
-    // links = nodes = undefined; console.log(sortedNodes);
-    return sortedNodes;
+    return nodes;
 }
 
-
 //this methods sorts any Doubly Links linkedlist by links
-function sortDoublyListByLinks(unsortedNodes){
-    var getTargetFromSource = {}, getLinkFromSource = {}, head, sortedNodes = [];
-    var links = unsortedNodes.links;
-    var nodes = unsortedNodes.nodes;
-    // console.log(typeof(nodes));
+function sortDoublyLinkedCircularList(unsortedNodes){
+      var getTargetFromSource = {}, getLinkFromSource = {}, head, sortedNodes = [];
+      var links = unsortedNodes.links;
+      var nodes = unsortedNodes.nodes;
+      // console.log(typeof(nodes));
 
-    // var sortedNodes = new Array(nodes.length);
-    // console.log("nodesLe: " + nodes.length);
-    // sortedNodes[nodes.length] = undefined;
-    // var sortedNodes = new Array(Object.keys(nodes).length-1);
+      // var sortedNodes = new Array(nodes.length);
+      // console.log("nodesLe: " + nodes.length);
+      // sortedNodes[nodes.length] = undefined;
+      // var sortedNodes = new Array(Object.keys(nodes).length-1);
 
-    for(var i = 0; i < links.length; i++){
+      for(var i = 0; i < links.length; i++){
         // getTargetFromSource[links[i].source] = links[i].target;//assigning the link source as the key and the target as the value
-        getTargetFromSource[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
-        getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
-    }
+            getTargetFromSource[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
+            getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
+          }
 
-    head = 0;
-    for(var i = 0; i < nodes.length; i++){
-        var key = getTargetFromSource[head] + "-" + head;//link from target to source
-        var yek = head + "-" + getTargetFromSource[head];//link from source to target
-        if(getLinkFromSource[key]) {
-          if(sortedNodes[head] != undefined){
-            sortedNodes[head]['backwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
-          }else{
-            nodes[head]['backwardlink'] = getLinkFromSource[key];
-            sortedNodes.insert(head,nodes[head]);
+          head = 0;
+          for(var i = 0; i < nodes.length; i++){
+            var key = getTargetFromSource[head] + "-" + head;//link from target to source
+            var yek = head + "-" + getTargetFromSource[head];//link from source to target
+            if(getLinkFromSource[key]) {
+              if(sortedNodes[head] != undefined){
+                sortedNodes[head]['backwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
+              }else{
+                nodes[head]['backwardlink'] = getLinkFromSource[key];
+                sortedNodes.insert(head,nodes[head]);
+              }
+            }
+            if(getLinkFromSource[yek]){
+              if(sortedNodes[head] != undefined){
+                sortedNodes[head]['forwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
+              }else{
+                nodes[head]['forwardlink'] = getLinkFromSource[yek];
+                sortedNodes.insert(head,nodes[head]);
+              }
+            // if(nodes[head])sortedNodes.push(nodes[head]);
+            head = getTargetFromSource[head];//getting the next target
+            // if(!head)break;
           }
         }
-        if(getLinkFromSource[yek]){
-          if(sortedNodes[head] != undefined){
-            sortedNodes[head]['forwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
-          }else{
-            nodes[head]['forwardlink'] = getLinkFromSource[yek];
-            sortedNodes.insert(head,nodes[head]);
-          }
-        }
 
-        // if(nodes[head])sortedNodes.push(nodes[head]);
-        head = getTargetFromSource[head];//getting the next target
-        // if(!head)break;
-    }
 
-    // for(link in links){
-    // head = 0;
-    // for(var i = 0; i < nodes.length; i++){
-    //     if(head < getTargetFromSource[nodes]){
-    //         // if( (nodes[head] != -1) ){
-    //         if( ( !('backwardlink' in nodes[head]) && (!('forwardlink' in nodes[head]))) ){
-    //           nodes[head]['backwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
-    //           sortedNodes.insert(head,nodes[head]);
-    //           nodes[head] = new Object();
-    //         }else if( Object.keys(nodes[head]).length > 0 && !('backwardlink' in nodes[head]) ){
-    //           sortedNodes[head]['backwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
-    //         }
-    //     }
-    //
-    //     if(head > getTargetFromSource[nodes]){
-    //           // if( (nodes[head] != -1) ){
-    //           if( ( !('forwardlink' in nodes[head]) && (!('backwardlink' in nodes[head]))) ){
-    //             nodes[head]['forwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
-    //             sortedNodes.insert(head,nodes[head]);
-    //             nodes[head] = new Object();
-    //           }else if( Object.keys(nodes[head]).length > 0 && !('forwardlink' in nodes[head] )){
-    //             sortedNodes[head]['forwardlink'] = getLinkFromSource[ head + "-" + getTargetFromSource[head] ];
-    //           }
-    //     }
-    //
-    //     head = getTargetFromSource[head];//getting the next target
-    //
-    //
-    //     // if(links[i].target in nodes)
-    //     //     head = links[i].target;
-    //     // else if(links[i].source in nodes)
-    //     //     head = links[i].source;
-    //     // // head = links[i].source;
-    //
-    //     console.log("sortedNodesLe: " + sortedNodes.length);
-    //
-    //
-    //     // sortedNodes
-    // }
-
-    return sortedNodes;
-}
-
-//this methods sorts any linkedlist by links
-function sortSinglyListByLinks(unsortedNodes){
-    var getTargetFromSource = {}, getLinkFromSource = {}, sortedNodes = [], head;
-    var links = unsortedNodes.links;
-    var nodes = unsortedNodes.nodes;
-
-    for(var i = 0; i < links.length; i++){
-        getTargetFromSource[links[i].source] = links[i].target;//assigning the link source as the key and the target as the value
-        getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
-    }
-
-    // head = Object.keys(nodes).length-1;
-    head = 0;
-    // for(var h in nodes){//looping through the length of the nodes
-    for(var i = 0; i < nodes.length; i++){
-        var key = head + "-" + getTargetFromSource[head];//link from source to target
-        var yek = getTargetFromSource[head] + "-" + head;//link from target to source
-        if(getLinkFromSource[key]) nodes[head]['forwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
-        if(getLinkFromSource[yek]) nodes[head]['backwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
-        if(nodes[head])sortedNodes.push(nodes[head]);
-        head = getTargetFromSource[head];//getting the next target
-        // if(!head)break;
-    }
-    // links = nodes = undefined; console.log(sortedNodes);
     return sortedNodes;
 }
 

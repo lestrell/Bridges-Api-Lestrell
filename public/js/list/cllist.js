@@ -170,7 +170,8 @@ d3.csllist = function(d3, canvasID, w, h, data, transformCloud) {
           }
         })
         .attr("stroke",function(d,i){
-            return BridgesVisualizer.getColor(d.forwardlink.color) || "black";
+            if(d.forwardlink) return BridgesVisualizer.getColor(d.forwardlink.color)
+            else return "black";
         })
         .attr("stroke-width",5)
         .attr("marker-end",function(d,i){

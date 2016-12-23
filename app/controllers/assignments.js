@@ -327,9 +327,9 @@ exports.show = function (req, res, next) {
             allAssigns[i] = data;
         }
 
-        console.log("nodes     "+JSON.stringify(allAssigns['0'].nodes));
-        console.log("links     "+JSON.stringify(allAssigns['0'].links));
-        // console.log("     "+JSON.stringify(allAssigns['0'].nodes));
+        // console.log("nodes     "+JSON.stringify(allAssigns['0'].nodes));
+        // console.log("links     "+JSON.stringify(allAssigns['0'].links));
+        console.log("     "+JSON.stringify(allAssigns));
 
         return res.render ('assignments/assignmentMulti', {
             "title":"Assignment " + assignmentNumber,

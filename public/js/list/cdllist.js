@@ -167,8 +167,8 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
           }
         })
         .attr("stroke",function(d,i){
-            if(d.forwardlink) return BridgesVisualizer.getColor(d.forwardlink.color);
-            else "black";
+            if(d.forwardlink != undefined && d.forwardlink.color) return BridgesVisualizer.getColor(d.forwardlink.color);
+            else return "black";
         })
         .attr("stroke-width",5)
         .attr("marker-end",function(d,i){
