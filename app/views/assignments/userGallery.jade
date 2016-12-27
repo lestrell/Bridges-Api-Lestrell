@@ -29,7 +29,7 @@ block content
                               else if(assignments[x].vistype == "Alist")
                                   img.visimg(src='/img/array.png' title=assignments[x].vistype)
                               else
-                                  img.visimg(src='/img/'+assignments[x].vistype+'.png' title=assignments[x].vistype)
+                                  img.visimg(src='/img/'+assignments[x].vistype.toLowerCase()+'.png' title=assignments[x].vistype)
   
                    - else
                           div(class='gallery_assignment_div_public')
@@ -38,7 +38,7 @@ block content
                               else if(assignments[x].vistype == "Alist")
                                   img.visimg(src='/img/array.png' title=assignments[x].vistype)
                               else
-                                  img.visimg(src='/img/'+assignments[x].vistype+'.png' title=assignments[x].vistype)
+                                  img.visimg(src='/img/'+assignments[x].vistype.toLowerCase()+'.png' title=assignments[x].vistype)
 
 
                   a(style='text-decoration: none; ' href='/assignments/'+assignments[x].assignmentNumber+'/'+usernames)

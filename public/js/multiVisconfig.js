@@ -2,9 +2,9 @@ String.prototype.replaceAll = function(target, replacement) {
   return this.split(target).join(replacement);
 };
 
-Array.prototype.insert = function (index, item) {
-  this.splice(index, 0, item);
-};
+// Array.prototype.insert = function (index, item) {
+//   this.splice(index, 0, item);
+// };
 
 (function($) {
     $.fn.hasNoScrollBar = function() {
@@ -325,39 +325,37 @@ for (var key in data) {
   if (data.hasOwnProperty(key)) {
     var ele = document.getElementById("vis" + key),
         width = ele.clientWidth - 15,
-        height = ele.clientHeight + 15;
+        height = ele.clientHeight + 15
+        transform = data[key].transform;
     BridgesVisualizer.assignmentTypes.push(data[key]['visType']);
-
-    // console.log(data[key]);
 
     if (data[key]['visType'] == "tree" && d3.bst) {
         bst = d3.bst(d3, "#vis" + key, width, height);
         bst.make(data[key]);
     }
     else if(data[key]['visType'] == "dllist" && d3.dllist){
-        console.log(data[key]);
-        d3.dllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "doubly"), data[key].transform);
+        d3.dllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), transform);
     }
     else if(data[key]['visType'] == "cdllist" && d3.cdllist){
-        d3.cdllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "cdoubly"), data[key].transform);
+        d3.cdllist(d3, "#vis" + key, width, height, sortCircularDoublyListByLinks(data[key]), transform);
     }
     else if(data[key]['visType'] == "llist" && d3.sllist){
-        d3.sllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "singly"), data[key].transform);
+        d3.sllist(d3, "#vis" + key, width, height, sortDoublyListByLinks(data[key]), transform);;
     }
     else if(data[key]['visType'] == "cllist" && d3.csllist){
-        d3.csllist(d3, "#vis" + key, width, height, sortNodesByLinks(data[key], "singly"), data[key].transform);
+        d3.csllist(d3, "#vis" + key, width, height, sortCircularSinglyListByLinks(data[key]), transform);
     }
     else if (data[key]['visType'] == "queue" && d3.queue) {
-        d3.queue(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
+        d3.queue(d3, "#vis" + key, width, height, data[key].nodes, transform);
     }
     else if (data[key]['visType'] == "Alist" && d3.array) {
-          d3.array(d3, "#vis" + key, width, height, data[key].nodes, data[key].transform);
+          d3.array(d3, "#vis" + key, width, height, data[key].nodes, transform);
     }
     else if (data[key]['visType'] == "Array2D" && d3.array2d) {
-          d3.array2d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
+          d3.array2d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, transform);
     }
     else if (data[key]['visType'] == "Array3D" && d3.array3d) {
-          d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, data[key].transform);
+          d3.array3d(d3, "#vis" + key, width, height, data[key].nodes, data[key].dims, transform);
     }
     else if (data[key]['visType'] == "nodelink" && d3.graph) {
         BridgesVisualizer.setTicksPerRender(data[key].nodes.length);
@@ -631,85 +629,220 @@ $('[data-toggle="popover"]').popover({
      $(".popover").popover('hide');
   }
 
-//this methods sorts any Doubly Links linkedlist by links and add the links inside the parent nodes
-//orignally the first node has be to be the head in order to work properly
-//but there is no need for that. Also, the time complexity is O(n)
-function sortNodesByLinks(unsortedNodes, listType){
-    var links = unsortedNodes.links, nodes = unsortedNodes.nodes, sortedNodes = [];
-    if(listType == "singly"){
-        for(var i = 0; i < links.length; i++){
-            if(!(links[i].source in sortedNodes)){
-                if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
-                if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
-            }
-        }
-    }else if(listType == "doubly"){
-        for(var i = 0; i < links.length; i++){
-            if(!(links[i].source in sortedNodes)){
-                if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
-            }
+//this methods sorts any Doubly Links linkedlist by links
+function sortCircularSinglyListByLinks(unsortedNodes, listType){
+    var links = unsortedNodes.links,
+        nodes = unsortedNodes.nodes,
+        uniqueForwardLink = {},
+        uniqueBackwardLink = {},
+        sortedNodes = [],
+        head = 0,
+        lastIndex;
 
-            if(links[i].source < links[i].target){
-                if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
-            }else if(links[i].source > links[i].target){
-                if(sortedNodes[links[i].source]) sortedNodes[links[i].target]['backwardlink'] = links[i];
-            }
-
+    //O(n)
+    for(var i = links.length-1; i >= 0; i--){
+        if(parseInt(links[i].source) < parseInt(links[i].target)){
+            uniqueForwardLink[links[i].source+"-"+links[i].target] = links[i];
+        }else{
+            uniqueBackwardLink[links[i].source+"-"+links[i].target] = links[i];
         }
-    }else if(listType == "cdoubly"){
-        console.log("as");
-        return sortDoublyLinkedCircularList(unsortedNodes);
     }
 
-    return nodes;
-}
-
-//this methods sorts any Doubly Links linkedlist by links
-function sortDoublyLinkedCircularList(unsortedNodes){
-      var getTargetFromSource = {}, getLinkFromSource = {}, head, sortedNodes = [];
-      var links = unsortedNodes.links;
-      var nodes = unsortedNodes.nodes;
-      // console.log(typeof(nodes));
-
-      // var sortedNodes = new Array(nodes.length);
-      // console.log("nodesLe: " + nodes.length);
-      // sortedNodes[nodes.length] = undefined;
-      // var sortedNodes = new Array(Object.keys(nodes).length-1);
-
-      for(var i = 0; i < links.length; i++){
-        // getTargetFromSource[links[i].source] = links[i].target;//assigning the link source as the key and the target as the value
-            getTargetFromSource[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
-            getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
-          }
-
-          head = 0;
-          for(var i = 0; i < nodes.length; i++){
-            var key = getTargetFromSource[head] + "-" + head;//link from target to source
-            var yek = head + "-" + getTargetFromSource[head];//link from source to target
-            if(getLinkFromSource[key]) {
-              if(sortedNodes[head] != undefined){
-                sortedNodes[head]['backwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
-              }else{
-                nodes[head]['backwardlink'] = getLinkFromSource[key];
-                sortedNodes.insert(head,nodes[head]);
-              }
-            }
-            if(getLinkFromSource[yek]){
-              if(sortedNodes[head] != undefined){
-                sortedNodes[head]['forwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
-              }else{
-                nodes[head]['forwardlink'] = getLinkFromSource[yek];
-                sortedNodes.insert(head,nodes[head]);
-              }
-            // if(nodes[head])sortedNodes.push(nodes[head]);
-            head = getTargetFromSource[head];//getting the next target
-            // if(!head)break;
-          }
+    //this is expensive. Previous methods worked, but I find this way is safer.
+    //but it only happens once
+    var keys = Object.keys(uniqueForwardLink).sort(function(a,b){
+        if(a.split("-")[0] == b.split("-")[0]){
+           if(parseInt(a.split("-")[1]) > parseInt(b.split("-")[1])){
+              lastIndex = a;
+           }else{
+              lastIndex = b;
+           }
         }
+        return parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+    });
 
+
+    for(key in keys){
+      nodes[head]['forwardlink'] = uniqueForwardLink[keys[key]];
+      sortedNodes.push(nodes[head]);
+      head = uniqueForwardLink[keys[key]].target;
+    }if(sortedNodes.length == nodes.length-1){
+      sortedNodes.push(nodes[head]);
+    }
+
+    //this is O(1) since there is only one link from the last node to the first.
+    for(key in uniqueBackwardLink){
+      sortedNodes[sortedNodes.length-1]['forwardlink'] = uniqueBackwardLink[key];
+    }
 
     return sortedNodes;
 }
+
+//this methods sorts any Doubly Links linkedlist by links
+function sortCircularDoublyListByLinks(unsortedNodes, listType){
+    var links = unsortedNodes.links;
+    var nodes = unsortedNodes.nodes;
+    var uniqueForwardLink = {};
+    var uniqueBackwardLink = {};
+    var sortedNodes = [];
+    var head = 0,
+    lastIndex,
+    lastElement;
+
+    for(var i = links.length-1; i >= 0; i--){
+        if(parseInt(links[i].source) < parseInt(links[i].target)){
+            uniqueForwardLink[links[i].source+"-"+links[i].target] = links[i];
+        }else{
+            uniqueBackwardLink[links[i].source+"-"+links[i].target] = links[i];
+        }
+    }
+
+    var keys = Object.keys(uniqueForwardLink).sort(function(a,b){
+        if(a.split("-")[0] == b.split("-")[0]){
+           if(parseInt(a.split("-")[1]) > parseInt(b.split("-")[1])){
+              lastIndex = a;
+           }else{
+              lastIndex = b;
+           }
+        }
+        return parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+    });
+
+    lastElement = keys.splice(lastIndex,1)[0];
+    keys.push(lastElement);
+
+    for(key in keys){
+      nodes[head]['forwardlink'] = uniqueForwardLink[keys[key]];
+      sortedNodes.push(nodes[head]);
+      head = uniqueForwardLink[keys[key]].target;
+    }if(sortedNodes.length == nodes.length-1){
+      sortedNodes.push(nodes[head]);
+    }
+
+    var backwardKeys = Object.keys(uniqueBackwardLink);
+    for(key in backwardKeys){
+        sortedNodes[uniqueBackwardLink[backwardKeys[key]].target]['backwardlink'] = uniqueBackwardLink[backwardKeys[key]];
+    }
+    sortedNodes[sortedNodes.length-1]['backwardlink'] = uniqueBackwardLink[sortedNodes.length-1+"-"+0];
+
+    return sortedNodes;
+}
+
+//this methods sorts any Doubly Links linkedlist by links
+function sortDoublyListByLinks(unsortedNodes, listType){
+    var links = unsortedNodes.links;
+    var nodes = unsortedNodes.nodes;
+    var uniqueForwardLink = {};
+    var uniqueBackwardLink = {};
+    var sortedNodes = [];
+    var head = 0;
+
+    for(var i = links.length-1; i >= 0; i--){
+        if(parseInt(links[i].source) < parseInt(links[i].target)){
+            uniqueForwardLink[links[i].source+"-"+links[i].target] = links[i];
+        }else{
+            uniqueBackwardLink[links[i].target+"-"+links[i].source] = links[i];
+        }
+    }
+
+    var keys = Object.keys(uniqueForwardLink).sort(function(a,b){
+        return parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+    });
+
+    for(key in keys){
+        nodes[head]['forwardlink'] = uniqueForwardLink[keys[key]];
+        sortedNodes.push(nodes[head]);
+        head = uniqueForwardLink[keys[key]].target;
+    }if(sortedNodes.length == nodes.length-1){
+        sortedNodes.push(nodes[head]);
+    }
+
+    for(key in uniqueBackwardLink){
+        if(sortedNodes[uniqueBackwardLink[key].target])sortedNodes[uniqueBackwardLink[key].target]['backwardlink'] = uniqueBackwardLink[key];
+    }
+
+    return sortedNodes;
+}
+
+// //this methods sorts any Doubly Links linkedlist by links and add the links inside the parent nodes
+// //orignally the first node has be to be the head in order to work properly
+// //but there is no need for that. Also, the time complexity is O(n)
+// function sortNodesByLinks(unsortedNodes, listType){
+//     var links = unsortedNodes.links, nodes = unsortedNodes.nodes, sortedNodes = [];
+//     if(listType == "singly"){
+//         for(var i = 0; i < links.length; i++){
+//             if(!(links[i].source in sortedNodes)){
+//                 if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
+//                 if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
+//             }
+//         }
+//     }else if(listType == "doubly"){
+//         for(var i = 0; i < links.length; i++){
+//             if(!(links[i].source in sortedNodes)){
+//                 if(nodes[links[i].source]) sortedNodes.insert(links[i].source, nodes[links[i].source]);
+//             }
+//
+//             if(links[i].source < links[i].target){
+//                 if(sortedNodes[links[i].source]) sortedNodes[links[i].source]['forwardlink'] = links[i];
+//             }else if(links[i].source > links[i].target){
+//                 if(sortedNodes[links[i].source]) sortedNodes[links[i].target]['backwardlink'] = links[i];
+//             }
+//
+//         }
+//     }else if(listType == "cdoubly"){
+//         console.log("as");
+//         return sortDoublyLinkedCircularList(unsortedNodes);
+//     }
+//
+//     return nodes;
+// }
+//
+// //this methods sorts any Doubly Links linkedlist by links
+// function sortDoublyLinkedCircularList(unsortedNodes){
+//       var getTargetFromSource = {}, getLinkFromSource = {}, head, sortedNodes = [];
+//       var links = unsortedNodes.links;
+//       var nodes = unsortedNodes.nodes;
+//       // console.log(typeof(nodes));
+//
+//       // var sortedNodes = new Array(nodes.length);
+//       // console.log("nodesLe: " + nodes.length);
+//       // sortedNodes[nodes.length] = undefined;
+//       // var sortedNodes = new Array(Object.keys(nodes).length-1);
+//
+//       for(var i = 0; i < links.length; i++){
+//         // getTargetFromSource[links[i].source] = links[i].target;//assigning the link source as the key and the target as the value
+//             getTargetFromSource[links[i].target] = links[i].source;//assigning the link source as the key and the target as the value
+//             getLinkFromSource[links[i].source+"-"+links[i].target] = links[i];//creating a unique identifier for every link
+//           }
+//
+//           head = 0;
+//           for(var i = 0; i < nodes.length; i++){
+//             var key = getTargetFromSource[head] + "-" + head;//link from target to source
+//             var yek = head + "-" + getTargetFromSource[head];//link from source to target
+//             if(getLinkFromSource[key]) {
+//               if(sortedNodes[head] != undefined){
+//                 sortedNodes[head]['backwardlink'] = getLinkFromSource[key];//if there is a link, insert in the nodes
+//               }else{
+//                 nodes[head]['backwardlink'] = getLinkFromSource[key];
+//                 sortedNodes.insert(head,nodes[head]);
+//               }
+//             }
+//             if(getLinkFromSource[yek]){
+//               if(sortedNodes[head] != undefined){
+//                 sortedNodes[head]['forwardlink'] = getLinkFromSource[yek];//if there is a link, insert in the nodes
+//               }else{
+//                 nodes[head]['forwardlink'] = getLinkFromSource[yek];
+//                 sortedNodes.insert(head,nodes[head]);
+//               }
+//             // if(nodes[head])sortedNodes.push(nodes[head]);
+//             head = getTargetFromSource[head];//getting the next target
+//             // if(!head)break;
+//           }
+//         }
+//
+//
+//     return sortedNodes;
+// }
 
 // Saved the translate and scale of every visualization in an assignemts
 function saveVisStatesAsCookies(){

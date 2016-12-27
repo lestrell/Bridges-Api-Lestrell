@@ -13,8 +13,9 @@ exports.view = function(req, res, next) {
           // description: 1,
           assignmentNumber: 1,
           "data.visual": 1,
+          "data.dims":1,
           vistype: 1,
-          shared: 1
+          shared: 1,
       })
       //Do we want to load every single whole number assignment, or just some? Query might be time intensive.
       // .limit( 25 )
@@ -28,7 +29,9 @@ exports.view = function(req, res, next) {
           });
 
           for(var assignmentResultItem in assignmentResult){
-              assignmentResult[assignmentResultItem]['vistype'] = visTypes.getVisType(assignmentResult[assignmentResultItem]['data'][0]['visual']);
+              var $thisVistype = visTypes.getVisType(assignmentResult[assignmentResultItem]['data'][0]['visual']);
+              if($thisVistype == "Alist") $thisVistype = visTypes.checkIfHasDims(assignmentResult[assignmentResultItem]['data'][0]);
+              assignmentResult[assignmentResultItem]['vistype'] = $thisVistype;
           }
 
           return res.render('assignments/userGallery', {

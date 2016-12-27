@@ -55,7 +55,8 @@ exports.viewByAssignmentNumber = function(req, res) {
               title: 1,
               assignmentNumber: 1,
               email:1,
-              "data.visual":1
+              "data.visual":1,
+              "data.dims":1,
            })
           .exec(function(err, assignmentResult) {
 
@@ -96,7 +97,10 @@ exports.viewByAssignmentNumber = function(req, res) {
 
                   for(assignmentResultItem in assignmentResult){
                       assignmentResult[assignmentResultItem]['username'] = usernamesmap[assignmentResult[assignmentResultItem]['email']];
-                      assignmentResult[assignmentResultItem]['vistype'] = visTypes.getVisType(assignmentResult[assignmentResultItem]['data'][0].visual);
+
+                      var $thisVistype = visTypes.getVisType(assignmentResult[assignmentResultItem]['data'][0]['visual']);
+                      if($thisVistype == "Alist") $thisVistype = visTypes.checkIfHasDims(assignmentResult[assignmentResultItem]['data'][0]);
+                      assignmentResult[assignmentResultItem]['vistype'] = $thisVistype;
                       // assignmentResult[assignmentResultItem]['thumbnail'] = assignmentResult[assignmentResultItem]['vistype'];
                   }
 
@@ -139,7 +143,8 @@ exports.viewByUserName = function(req, res) {
                       },{
                         title: 1,
                         assignmentNumber: 1,
-                        "data.visual":1
+                        "data.visual":1,
+                        "data.dims":1
                       })
                       .exec(function(err, assignmentResult) {
                           // console.log("assignmentResult: " + assignmentResult);
@@ -164,9 +169,11 @@ exports.viewByUserName = function(req, res) {
 
                           for(var i = 0; i < assignmentResult.length; i++) {
                               // add new resource info
-                              assignmentResult[i]['vistype'] = visTypes.getVisType(assignmentResult[i].data[0].visual);
+                              var $thisVistype = visTypes.getVisType(assignmentResult[i].data[0].visual);
+                              if($thisVistype == "Alist") $thisVistype = visTypes.checkIfHasDims(assignmentResult[i].data[0]);
+                              assignmentResult[i]['vistype'] = $thisVistype;
                           }
-                          console.log("assignmentResult: " + assignmentResult);
+                          // console.log("assignmentResult: " + assignmentResult);
 
 
                           return res.render('assignments/publicUserGallery', {
