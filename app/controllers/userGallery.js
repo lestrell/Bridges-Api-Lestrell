@@ -10,6 +10,7 @@ exports.view = function(req, res, next) {
       }, {
           assignmentID: 1,
           title: 1,
+          dateCreated:1,
           // description: 1,
           assignmentNumber: 1,
           "data.visual": 1,
@@ -24,8 +25,10 @@ exports.view = function(req, res, next) {
           if (!assignmentResult) return next("could not find " + "assignment " + req.params.userNameRes);
 
           // sort on assignment ID since assignmentID could be String
+          // sort on dateCreated in milliseconds
           assignmentResult.sort(function(a, b) {
-              return parseFloat(a.assignmentID) - parseFloat(b.assignmentID);
+              return Date.parse(b.dateCreated) - Date.parse(a.dateCreated);
+              // return parseFloat(a.assignmentID) - parseFloat(b.assignmentID);
           });
 
           for(var assignmentResultItem in assignmentResult){

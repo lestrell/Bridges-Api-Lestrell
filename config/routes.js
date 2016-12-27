@@ -195,6 +195,7 @@ module.exports = function(app, passport, streamable) {
     var gallery = require('../app/controllers/gallery.js')      // Public gallery
     var userGallery = require('../app/controllers/userGallery.js')  // Private user gallery
 
+    //renaming the assignmentNumber parameter to query would be wise, but it would have to be changed in the gallery.js controller.
     app.get('/assignments/:assignmentNumber', function(req, res){
         if(req.params.assignmentNumber && isNaN(req.params.assignmentNumber) ){
             return gallery.viewByUserName(req, res);

@@ -27,7 +27,7 @@ BridgesVisualizer.centerTextHorizontallyInRect = function(obj, width){
 
 BridgesVisualizer.getShortText = function(text){
     if(text && text.length > 5){
-      return text.substr(0,3)+"...";
+      return text.substr(0,4)+"...";
     }else{
       return text;
     }
@@ -36,16 +36,17 @@ BridgesVisualizer.getShortText = function(text){
 BridgesVisualizer.strokeWidthRange = d3.scale.linear().domain([1,10]).range([1,15]).clamp(true);
 
 // Offsets for text labels for visualization types
+// Not implemented yet
 BridgesVisualizer.textOffsets = {
-    "graph": { "x":  22,  "y": -10 },
-     "tree": { "x":  20,  "y": -15 },
-    "Alist": { "x": -20,  "y": -50 },
-  "Array2D": { "x": -20,  "y": -20 },
-  "Array3D": { "x": -20,  "y": -20 },
-    "llist": { "x": -20,  "y": -20 },
-   "dllist": { "x": -20,  "y": -20 },
-  "cdllist": { "x": -20,  "y": -20 },
-  "default": { "x":   0,  "y": 0   }
+      "graph": { "x":  22,  "y": -10 },
+       "tree": { "x":  20,  "y": -15 },
+      "Alist": { "x": -20,  "y": -50 },
+    "Array2D": { "x": -20,  "y": -20 },
+    "Array3D": { "x": -20,  "y": -20 },
+      "llist": { "x": -20,  "y": -20 },
+     "dllist": { "x": -20,  "y": -20 },
+    "cdllist": { "x": -20,  "y": -20 },
+    "default": { "x":   0,  "y": 0   }
 };
 
 // function to return color depending on the style of representation
@@ -122,6 +123,8 @@ BridgesVisualizer.tooltipEnabled = true;
 //   // d3.select(el).select("text").transition().duration(500).style("opacity", 0.0);
 // };
 //
+
+
 // function to return the transformObject saved positions
 BridgesVisualizer.getTransformObject = function(visID, transformCloud) {
     var transformObject = getTransformObjectFromCloud(transformCloud);
@@ -172,7 +175,7 @@ function getTransformObjectFromCookie(visID){
               try{
                   cookieJSONValue = JSON.parse(cookieStringValue);
               }catch(err){
-                  console.log(err, cookieStringValue);
+                  // console.log(err, cookieStringValue);
               }
 
               if(cookieJSONValue&&
@@ -317,9 +320,6 @@ if( map )
   map( mapData );
 
 
-console.log(user);
-console.log(data);
-// console.log(JSON.stringify(data));
 /* create new assignments  */
 for (var key in data) {
   if (data.hasOwnProperty(key)) {
@@ -363,7 +363,7 @@ for (var key in data) {
         d3.graph(d3, "#vis" + key, width, height, data[key]);
     }
     else {
-        console.log("unknown data type");
+        // console.log("unknown data type");
         d3.graph(d3, "#vis" + key, width, height, data[key]);
     }
     visCount++;
@@ -576,20 +576,9 @@ function alertMessage(message, status) {
   },2500);
 }
 
-function deleteAssignment(){
-  $.ajax({
-      url: "/assignments/"+assignmentNumber,
-      type: "delete",
-      data: {}
-  }).done(function(status) {
-      if(status == 'OK'){
-          alertMessage("Scale and translation saved!<br>Taking you back to home...", "success");
-          window.location.href="/username/"+user.username;
-      } else {
-          alertMessage("Unsuccessful. Try logging in!", "danger");
-      }
-  });
-}
+
+
+
 
 $('[data-toggle="popover"]').popover({
     trigger : 'click',
@@ -603,31 +592,38 @@ $('[data-toggle="popover"]').popover({
               '<button type="button" onclick="popoverCancel()" class="btn btn-default popover-cancel">'+
               '<i class="glyphicon glyphicon-remove"></i></button></div></div>'
   });
-
   $('#submitDelete').click(function(){
-      console.log($(".popover"));
-      console.log($(".popover").css("opacity"));
       if($(".popover").css("opacity") == undefined){
           $('#submitDelete').click();
       }
   });
-  //
-  // $('[data-toggle="popover"]').click(function(){
-  //
-  //     console.log("click");
-  //   $(this).show();
-  // });
-
   function popoverSubmit(){
-    console.log("click");
     deleteAssignment();
      $(".popover").popover('hide');
   }
-
   function popoverCancel(){
-    console.log("click");
      $(".popover").popover('hide');
   }
+  function deleteAssignment(){
+    $.ajax({
+        url: "/assignments/"+assignmentNumber,
+        type: "delete",
+        data: {}
+    }).done(function(status) {
+        if(status == 'OK'){
+            alertMessage("Scale and translation saved!<br>Taking you back to home...", "success");
+            window.location.href="/username/"+user.username;
+        } else {
+            alertMessage("Unsuccessful. Try logging in!", "danger");
+        }
+    });
+  }
+
+
+
+
+
+
 
 //this methods sorts any Doubly Links linkedlist by links
 function sortCircularSinglyListByLinks(unsortedNodes, listType){
@@ -866,7 +862,7 @@ function saveVisStatesAsCookies(){
       var today = new Date().toLocaleTimeString()+" - "+new Date().toLocaleDateString();
 
     } catch(err){
-      console.log(err);
+      // console.log(err);
     }
 }
 
@@ -883,7 +879,7 @@ try{
       }, 250);
     });
 }catch(err){
-    console.log(err);
+    // console.log(err);
 }
 
 //toggle, show and hide all labels ".nodeLabel"
@@ -899,6 +895,23 @@ $("body").on("keydown", function(event) {
         }
     }
 });
+
+// Asynchronously update the assignment visibility
+function toggleShare (selected) {
+    $.ajax({
+        url: "/assignments/"+assignmentNumber+"/share/"+selected,
+        type: "post"
+    }).done(function() {
+        //- console.log('visibility updated')
+    }).error(function(err){
+        //- console.log(err)
+    });
+}
+
+// TODO: Save snapshot of a particular assignment
+function saveSnapshot() {
+    console.log("save snapshot");
+}
 
 //close tooltip on double click
 $("body").dblclick(function(){

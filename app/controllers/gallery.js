@@ -55,6 +55,7 @@ exports.viewByAssignmentNumber = function(req, res) {
               title: 1,
               assignmentNumber: 1,
               email:1,
+              dateCreated:1,
               "data.visual":1,
               "data.dims":1,
            })
@@ -66,7 +67,7 @@ exports.viewByAssignmentNumber = function(req, res) {
 
               if(assignmentResult.length == 0) {
                   return res.render('assignments/gallery', {
-                      "title": "Assignment gallery",
+                      "title": "Looks like there aren't any assignments here... :(",
                       "user":req.user,
                       "assignments": "",
                       "assignmentNumber":-1
@@ -101,14 +102,19 @@ exports.viewByAssignmentNumber = function(req, res) {
                       var $thisVistype = visTypes.getVisType(assignmentResult[assignmentResultItem]['data'][0]['visual']);
                       if($thisVistype == "Alist") $thisVistype = visTypes.checkIfHasDims(assignmentResult[assignmentResultItem]['data'][0]);
                       assignmentResult[assignmentResultItem]['vistype'] = $thisVistype;
-                      // assignmentResult[assignmentResultItem]['thumbnail'] = assignmentResult[assignmentResultItem]['vistype'];
                   }
 
                   console.log("assignmentResult: " + assignmentResult);
-
+                  // sort on assignment ID since assignmentID could be String
+                  // sort on dateCreated in milliseconds
+                  assignmentResult.sort(function(a, b) {
+                      console.log(Date.parse(a.dateCreated));
+                      return Date.parse(b.dateCreated) - Date.parse(a.dateCreated);
+                      // return parseFloat(a.assignmentID) - parseFloat(b.assignmentID);
+                  });
 
                   return res.render('assignments/gallery', {
-                      "title": "Assignment gallery",
+                      "title": "Public Gallery for assignments with number '" + req.params.assignmentNumber +"'",
                       "user":req.user,
                       "assignmentNumber":req.params.assignmentNumber,
                       "assignments":assignmentResult
@@ -133,7 +139,7 @@ exports.viewByUserName = function(req, res) {
       User
           .findOne({username:assignmentNumber})
           .exec(function (err, user) {
-              if (err) return next(err)
+              if (err) res.json("503",err);
               if (user) {
 
                   Assignment
@@ -143,12 +149,11 @@ exports.viewByUserName = function(req, res) {
                       },{
                         title: 1,
                         assignmentNumber: 1,
+                        dateCreated:1,
                         "data.visual":1,
                         "data.dims":1
                       })
                       .exec(function(err, assignmentResult) {
-                          // console.log("assignmentResult: " + assignmentResult);
-
                           if (err) return next(err)
                           if (!assignmentResult) return next("could not find " +
                               "assignment " + req.params.assignmentNumber)
@@ -166,28 +171,39 @@ exports.viewByUserName = function(req, res) {
                               return res.redirect('/user/'+req.user.username);
                           }
 
-
                           for(var i = 0; i < assignmentResult.length; i++) {
                               // add new resource info
                               var $thisVistype = visTypes.getVisType(assignmentResult[i].data[0].visual);
                               if($thisVistype == "Alist") $thisVistype = visTypes.checkIfHasDims(assignmentResult[i].data[0]);
                               assignmentResult[i]['vistype'] = $thisVistype;
                           }
-                          // console.log("assignmentResult: " + assignmentResult);
+
+                          // sort on assignment ID since assignmentID could be String
+                          // sort on dateCreated in milliseconds
+                          assignmentResult.sort(function(a, b) {
+                              return Date.parse(b.dateCreated) - Date.parse(a.dateCreated);
+                              // return parseFloat(a.assignmentID) - parseFloat(b.assignmentID);
+                          });
 
 
                           return res.render('assignments/publicUserGallery', {
-                              "title": "Assignment gallery",
+                              "title": assignmentNumber+"'s Public Gallery",
                               "user":user,
-                              "assignmentNumber":req.params.assignmentNumber,
+                              "assignmentNumber":assignmentNumber,
                               "assignments":assignmentResult
                           })
 
                       })
 
+              }else{
+                  return res.render('assignments/publicUserGallery', {
+                      "title": "Looks like there aren't any assignments here... :(",
+                      "assignmentNumber":assignmentNumber,
+                      "user":req.user,
+                      "assignments":new Array()
+                  });
               }
           })
-      // console.log("assignmentNumber: " + assignmentNumber);
 
     }
 }

@@ -13,14 +13,10 @@ block content
         .row
             .col-lg-12
                 div(style="float:left; margin-left:50px;width:100%;")
-                    - if (assignmentNumber < 0)
-                            h1(style="text-align: left") Looks like there aren't any assignments here...    :(
-                    - else
-                            h1(style="text-align: left") Public Gallery for assignments with number '#{assignmentNumber}'
+                    h1(style="text-align: left") #{title}
 
     div(style="margin:5%")
         - for (var x = 0; x < assignments.length; x++)
-              //- - console.log(assignmentNumber)
               div.gallery_assignment_container
                   div.gallery_assignment_div_public
                       a(href="/assignments/"+assignments[x].assignmentNumber+"/"+user.username)

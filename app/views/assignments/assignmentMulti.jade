@@ -83,9 +83,14 @@ block content
         -}
 
 block footerjs
-
-    script(src = '/components/d3/d3.min.js')
     //- script(src = '/components/jquery/dist/jquery.min.js')
+    script(src = '/components/d3/d3.min.js')
+    each script in linkResources.script
+        script(src = script)
+        
+    each css in linkResources.css
+        link(rel='stylesheet', href=css)
+
 
     script.
         var owner = '#{owner}'
@@ -101,21 +106,13 @@ block footerjs
         else
             $('#private').prop('checked',true)
 
-    script.
         var data = !{JSON.stringify(data)};
         var user = !{JSON.stringify(user)};
         var assignmentNumber = !{JSON.stringify(assignmentNumber)};
-
         var mapData =  !{JSON.stringify(mapData)};
         var createMap =  !{JSON.stringify(createMap)};
-        var BridgesVisualizer = {};
+        var BridgesVisualizer = {};  
         
-        
-    each script in linkResources.script
-        script(src = script)
-        
-    each css in linkResources.css
-        link(rel='stylesheet', href=css)
 
     // Map demonstrating locations in the assignment
     - if ( createMap )
@@ -133,26 +130,5 @@ block footerjs
                   .css('font-size', '24px')
                   .css('padding', '50px');
             }            
-    //- script(src = '/js/lib/d3tip.js')
     script(src = '/js/multiVisconfig.js')
     //- script(scr = "http://d3js.org/d3.v3.min.js")
-
-
-    script.
-        // Asynchronously update the assignment visibility
-        function toggleShare (selected) {
-            //- var assignmentNumber = !{JSON.stringify(assignmentNumber)}
-            $.ajax({
-                url: "/assignments/"+assignmentNumber+"/share/"+selected,
-                type: "post"
-            }).done(function() {
-                console.log('visibility updated')
-            }).error(function(err){
-                console.log(err)
-            });
-        }
-
-        // TODO: Save snapshot of a particular assignment
-        function saveSnapshot() {
-            console.log("save snapshot");
-        }
