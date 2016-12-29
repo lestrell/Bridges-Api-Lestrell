@@ -12,6 +12,28 @@ String.prototype.replaceAll = function(target, replacement) {
     }
 })(jQuery);
 
+// BridgesVisualizer.getForwardLinkColor = function(links, nodesSize){
+//   for(var i in links){
+//      if(links[i].source == 0 && links[i].target == nodesSize){
+//         return BridgesVisualizer.getColor(links[i].color);
+//      }else if(links[i].source < links[i].target){
+//        return BridgesVisualizer.getColor(links[i].color);
+//      }
+//   }
+//   return "black";
+// }
+//
+// BridgesVisualizer.getBackwardLinkColor = function(links, nodesSize){
+//     for(var i in links){
+//        console.log(BridgesVisualizer.getColor(links[i].color));
+//        if(links[i].source == nodesSize && links[i].target == 0){
+//           return BridgesVisualizer.getColor(links[i].color);
+//        }else if(links[i].source > links[i].target){
+//          return BridgesVisualizer.getColor(links[i].color);
+//        }
+//     }
+//     return "black";
+// }
 
 var ticksPerRender = 2000;
 BridgesVisualizer.getTicksPerRender = function(){
@@ -319,7 +341,7 @@ var map = map || null;
 if( map )
   map( mapData );
 
-
+console.log(data);
 /* create new assignments  */
 for (var key in data) {
   if (data.hasOwnProperty(key)) {
@@ -676,50 +698,62 @@ function sortCircularSinglyListByLinks(unsortedNodes, listType){
 
 //this methods sorts any Doubly Links linkedlist by links
 function sortCircularDoublyListByLinks(unsortedNodes, listType){
-    var links = unsortedNodes.links;
-    var nodes = unsortedNodes.nodes;
-    var uniqueForwardLink = {};
-    var uniqueBackwardLink = {};
-    var sortedNodes = [];
-    var head = 0,
-    lastIndex,
-    lastElement;
+    var links = unsortedNodes.links,
+        nodes = unsortedNodes.nodes,
+        uniqueForwardLink = {},
+        uniqueBackwardLink = {},
+        sortedNodes = [],
+        head = 0,
+        lastIndex,
+        lastElement;
 
     for(var i = links.length-1; i >= 0; i--){
         if(parseInt(links[i].source) < parseInt(links[i].target)){
             uniqueForwardLink[links[i].source+"-"+links[i].target] = links[i];
+            if(links[i].source == 0 && links[i].target == nodes.length-1){
+                nodes[links[i].source]['forwardlink'] = links[i];
+                continue;
+            }else{
+                nodes[links[i].target]['backwardlink'] = links[i];
+                continue;
+            }
+
         }else{
             uniqueBackwardLink[links[i].source+"-"+links[i].target] = links[i];
+            if(links[i].source == nodes.length-1 && links[i].target == 0){
+                nodes[links[i].target]['backwardlink'] = links[i];
+                continue;
+            }else{
+                nodes[links[i].source]['forwardlink'] = links[i];
+                continue;
+            }
         }
     }
 
     var keys = Object.keys(uniqueForwardLink).sort(function(a,b){
         if(a.split("-")[0] == b.split("-")[0]){
            if(parseInt(a.split("-")[1]) > parseInt(b.split("-")[1])){
-              lastIndex = a;
+               lastIndexA = a;
+               lastIndexB = b;
            }else{
-              lastIndex = b;
+               lastIndexA = a;
+               lastIndexB = b;
            }
         }
-        return parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+        return parseInt(b.split("-")[0]) - parseInt(a.split("-")[0]);
     });
 
-    lastElement = keys.splice(lastIndex,1)[0];
-    keys.push(lastElement);
 
-    for(key in keys){
-      nodes[head]['forwardlink'] = uniqueForwardLink[keys[key]];
-      sortedNodes.push(nodes[head]);
-      head = uniqueForwardLink[keys[key]].target;
-    }if(sortedNodes.length == nodes.length-1){
-      sortedNodes.push(nodes[head]);
-    }
 
-    var backwardKeys = Object.keys(uniqueBackwardLink);
-    for(key in backwardKeys){
-        sortedNodes[uniqueBackwardLink[backwardKeys[key]].target]['backwardlink'] = uniqueBackwardLink[backwardKeys[key]];
+    for(var i = 0; i < keys.length; i++){
+      sortedNodes.push(nodes[head]);
+      head = uniqueForwardLink[keys[i]].target;
     }
-    sortedNodes[sortedNodes.length-1]['backwardlink'] = uniqueBackwardLink[sortedNodes.length-1+"-"+0];
+    // if(sortedNodes.length == nodes.length-1){
+    //   sortedNodes.push(nodes[head]);
+    // }
+    sortedNodes[lastIndexA.split("-")[1]] = nodes[lastIndexB.split("-")[1]];
+
 
     return sortedNodes;
 }

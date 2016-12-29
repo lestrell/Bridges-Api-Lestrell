@@ -22,6 +22,8 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
     var defaultSizeH = 100;  // default size of each element box
     var defaultSizeW = 160;  // default size of each element box
     var elementsPerRow = 4 * parseInt((w - (spacing + defaultSizeH)) / (spacing + defaultSizeH));
+    var nodesSize = data.length-1;
+    console.log(nodesSize);
     // error when zooming directly after pan on OSX
     // https://github.com/mbostock/d3/issues/2205
     var zoom = d3.behavior.zoom()
@@ -167,7 +169,8 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
           }
         })
         .attr("stroke",function(d,i){
-            if(d.forwardlink != undefined && d.forwardlink.color) return BridgesVisualizer.getColor(d.forwardlink.color);
+          if(d.forwardlink != undefined && d.forwardlink.color) return BridgesVisualizer.getColor(d.forwardlink.color);
+            // if(d.links != undefined) return BridgesVisualizer.getForwardLinkColor(d.links, nodesSize);
             else return "black";
         })
         .attr("stroke-width",5)
@@ -225,6 +228,7 @@ d3.cdllist = function(d3, canvasID, w, h, data, transformCloud) {
         // .attr("stroke","pink")
         .attr("stroke",function(d,i){
             if(d.backwardlink != undefined && d.backwardlink.color) return BridgesVisualizer.getColor(d.backwardlink.color);
+            if(d.links != undefined) return BridgesVisualizer.getBackwardLinkColor(d.links, nodesSize);
             else return "black";
         })
         .attr("stroke-width",5)
